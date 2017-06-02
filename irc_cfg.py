@@ -9,3 +9,5 @@ NICK = "<YOUR BOT'S USERNAME>"
 PASS = "oauth:<YOUR BOT ACCOUNT'S API KEY>"
 CHAN = "#<YOUR CHANNEL>"
 RATE = (30/20) # 30 seconds / 20 messges (20 messages per 30 seconds)
+POINT_NAME = "points"
+POINTS_PER_MINUTE = "10"
