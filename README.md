@@ -23,6 +23,6 @@ Create a bot account on twitch.
 
 Generate a chat token while logged in as your bot: https://www.twitchtools.com/chat-token
 
-Use a text editor like Notepad to add your username, bot's username, and bot's chat token
+Use a text editor like Notepad to add your username, bot's username, and bot's chat token to example\_irc\_cfg.py. Rename this to irc\_cfg.py
 
 Run bot.py in python
