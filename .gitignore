@@ -25,6 +25,7 @@
 *.log
 *.sql
 *.sqlite
+*.db
 
 # OS generated files #
 ######################
@@ -36,5 +37,9 @@
 ehthumbs.db
 Thumbs.db
 
-# Coreuptedbot Config
+# Coreuptedbot Config + logs
 ./irc_cfg.py
+irc_cfg.py
+./irc_cfg.pyc
+irc_cfg.pyc
+*chatted_today*
