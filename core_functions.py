@@ -40,3 +40,15 @@ def givepoints(username, gift_points):
         conn_cursor.execute("INSERT INTO chat_points(points,username) values(?,?)", t)
         db_conn.commit()
     return
+
+def getpoints(username):
+    #Fetches a user's points from the chat_points table
+    #If they don't exist give 0 to create record
+    t = (username,)
+    if user_exists(username, 'chat_points'):
+        conn_cursor.execute("SELECT points FROM chat_points WHERE username = ?", t)
+        return conn_cursor.fetchone()[0]
+    else:
+        givepoints(username, 0)
+        return getpoints(username)
+print getpoints('steffersaurus')
