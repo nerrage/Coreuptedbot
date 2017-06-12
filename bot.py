@@ -5,6 +5,7 @@ import time
 import re
 import datetime
 import os
+import core_functions
 
 # initial connection to irc
 
@@ -30,16 +31,8 @@ announcetime = ts #static storage of timestamp
 
 #functions
 
-def RepresentsInt(test_string):
-    try: 
-        int(test_string)
-        return True
-    except ValueError:
-        return False
-
 def chat(sock, msg):
     #send as a message
-    #note that bans/timeouts use this
     sock.send("PRIVMSG {} :{}\r\n".format(irc_cfg.CHAN, msg))
 
 def ban(sock, user):
@@ -50,32 +43,6 @@ def shorttimeout(sock, user, secs=120):
     #gives twitch timeout for secs
     chat(sock, ".timeout {}".format(user, secs))
 
-def finduserpoints(user):
-    pointsfile = open("custompoints.csv", "r")
-    pointslines = pointsfile.readlines()
-    pointsfile.seek(0)
-    for line in pointslines:
-        points_split = line.split()
-        points_username = points_split[0]
-        if user == points_username:
-            return points_split[1] #custom set number of points
-    return 1500 #If you finish loop with no points left, 1500 is default
-
-def givepoints(sock, user):
-    #This watches users who chatted then evaluates if they are new
-    #If new, append them to a file, then send chat message to give points
-    #Manually opens and closes because it is in a file
-    member_file = open("chatted_today", "a+")
-    lines = member_file.readlines()
-    for line in lines:
-        if user+"\n" == line: #User in file
-            return #exit when found
-    #User not in any line if not returned
-    member_file.write(user+"\n")
-    member_file.close()
-    pointstogive = finduserpoints(user)
-    chat(sock, "!bonus {} {}".format(user, pointstogive))
-    print("gave {} {} points".format(user,pointstogive))
 
 def resetpoints(sock, user):
     #Activates after a designated user says !newstream
