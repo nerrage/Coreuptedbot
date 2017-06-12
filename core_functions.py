@@ -77,3 +77,34 @@ def takepoints(username, points):
     t = (points,username)
     conn_cursor.execute("UPDATE chat_points SET points = points - ? WHERE username = ?", t)
     db_conn.commit()
+
+def setchatbonus(username,bonus_points):
+    #sets the bonus in the custom bonus table
+    #for first time chatting
+    t = (bonus_points, username)
+    if user_exists(username, 'bonus_chat_points'):
+        conn_cursor.execute("UPDATE bonus_chat_points SET points = ? WHERE username = ?", t)
+        db_conn.commit()
+    else:
+        conn_cursor.execute("INSERT INTO bonus_chat_points(points, username) values (?, ?)", )
+        db_conn.commit()
+
+def getchatbonus(username):
+    t = (username,)
+    if user_exists(username, 'bonus_chat_points'):
+        conn_cursor.execute("SELECT points FROM chat_points WHERE username = ?", t)
+        return conn_cursor.fetchone()[0]
+    else:
+        return irc_cfg.FIRST_CHAT_BONUS_POINTS #default
+
+def hasfirstbonus(username):
+    #Check if user has chatted once today
+    return user_exists(username, 'chatted_today')
+
+def givefirstbonus(username):
+    #make damn sure hasfirstbonus is checked otherwise bad exceptions
+    t = (username,)
+    bonus_points = getchatbonus(username)
+    givepoints(username, bonus_points)
+    conn_cursor.execute("INSERT INTO chatted_today VALUES ?", t)
+    db_conn.commit()
