@@ -7,7 +7,6 @@ db_conn = sqlite3.connect('bot.db')
 conn_cursor = db_conn.cursor()
 owner = irc_cfg.CHAN[1:]
 t = (owner,)
-print t
 
 #Create tables
 conn_cursor.execute("CREATE TABLE chat_points (username varchar(255) PRIMARY KEY, points int);")
