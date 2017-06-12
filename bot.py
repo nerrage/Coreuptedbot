@@ -6,6 +6,7 @@ import re
 import datetime
 import os
 import core_functions
+import sqlite3
 
 # initial connection to irc
 
@@ -18,6 +19,10 @@ s.send("JOIN {}\r\n".format(irc_cfg.CHAN).encode("utf-8"))
 time.sleep(1)
 print(s.recv(1024).decode("utf-8")) #Print inital irc connection
 #Stops bot from giving points to itself or a non-existent tmi user
+
+#db setup
+db_conn = sqlite3.connect('bot.db')
+conn_cursor = db_conn.cursor()
 
 #global variables
 paused = False
@@ -44,39 +49,15 @@ def shorttimeout(sock, user, secs=120):
     chat(sock, ".timeout {}".format(user, secs))
 
 
-def resetpoints(sock, user):
+def resetbonuspoints(sock, admin_name):
     #Activates after a designated user says !newstream
     #This empties the list of people who chatted
-    if user == 'nerrage' or user == 'coreupted':
-        os.rename("chatted_today", "chatted_today{}".format(st))
+    if core_functions.user_exists(admin_name, admins):
         chat(sock, "Chat bonus has been reset for all! Enjoy your chatting Kappa")
-        print("points reset")
-
-def purgepresetcustompoints(user):
-    #Deletes any lines with that user's username
-    pointsfile = open("custompoints.csv", "r+")
-    pointslines = pointsfile.readlines()
-    pointsfile.seek(0)
-    for line in pointslines:
-        points_split = line.split()
-        points_username = points_split[0]
-        print(points_username+" is username")
-        if user != points_username:
-            pointsfile.write(line) #keep unaltered user lines
-    pointsfile.truncate()
-    pointsfile.close()
-
-def setcustompoints(sock, user, user_to_set, points):
-    if user == 'nerrage' or user == 'coreupted':
-        if RepresentsInt(points): 
-            purgepresetcustompoints(user_to_set)
-            print("writing points")
-            pointsfile = open("custompoints.csv", "a+")
-            pointsfile.write(user_to_set+" "+points+"\n")
-            chat(sock, "Point bonus set to {} for user {}".format(points,user_to_set))
-            print("points for {} set to {}".format(user_to_set,points))
-        else:
-            chat(sock, "MrDestructoid Are you trying to kill me? {} isn't a number".format(points))
+        conn_cursor.execute("DELETE FROM chatted_today")
+        db_conn.commit()
+    else:
+        chat(sock, "You are not authorized to reset the chat")
 
 def processchat(chatlist):
     #This makes every message in the format of
@@ -91,18 +72,16 @@ def processchat(chatlist):
     return trimmedchat
 
 def pausebot(sock, user):
-    if user == 'nerrage' or user == 'coreupted':
+    if core_functions.user_exists(admin_name, admins):
         global paused
         paused = True
         chat(sock, "Coreuptedbot is paused. Chat points paused. !coreuptedbot unpause to restart")
-        print("Pause initiated")
 
 def unpausebot(sock, user):
-    if user == 'nerrage' or user == 'coreupted':
+    if core_functions.user_exists(admin_name, admins):
         global paused
         paused = False
         chat(sock, "Coreuptedbot is unpaused. Come and get your points MrDestructoid")
-        print("Bot unpaused")
 
 def commandlist(username,message):
 #todo: smaller functions
@@ -110,18 +89,21 @@ def commandlist(username,message):
         #twitch pings us to check connection
         s.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
         print("Pong sent") #logging
-    if re.match("!coreuptedbot reset", chatmessage[1]):
+    if re.match("!resetbonus", chatmessage[1]):
         resetpoints(s, username)
-    if re.match("!coreuptedbot setbonus", message):
+    if re.match("!setbonus", message):
         #!coreuptedbot setpoints nerrage 2000
         try:
-            split_string = message.split()
-            setpoint_name = split_string[2]
-            setpoint_points = split_string[3]
-            setcustompoints(s, username, setpoint_name, setpoint_points)
+            if core_functions.user_exists(admin_name, admins):
+                split_string = message.split()
+                setpoint_name = split_string[2]
+                setpoint_points = split_string[3]
+                core_functions.setchatbonus(setpoint_name, setpoint_points)
+            else:
+                chat(s, "You are not authorized to set bonus points")
         except:
-            chat(s, "!coreuptedbot setbonus <user> <points>")
-    if re.match("!coreuptedbot ping", message):
+            chat(s, "!setbonus <user> <points>")
+    if re.match("!pingbot", message):
         if paused:
             chat(s, "Coreuptedbot is PAUSED MrDestructoid")
         else:
@@ -155,9 +137,6 @@ while True:
 	username = chatmessage[0]
         message = chatmessage[1]
         commandlist(username, message)
-        if paused == False:
-            #only give points when not paused
-            givepoints(s, username)
     print("Timestamp: {}, announcetime {} ".format(float(time.time()), announcetime))
     if (announcetime <= float(time.time()) - 300 and paused == False): #5 mins since last announcement
        announcements(s)
