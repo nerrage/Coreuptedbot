@@ -8,6 +8,13 @@ conn_cursor = db_conn.cursor()
 
 owner = irc_cfg.CHAN[1:]
 
+def representsint(test_string):
+    try: 
+        int(test_string)
+        return True
+    except ValueError:
+        return False
+
 def getchatlist():
     #get everyone in chat, return as array
     #Special shoutout to bad_hombres on Twitch!
