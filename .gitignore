@@ -43,3 +43,5 @@ irc_cfg.py
 ./irc_cfg.pyc
 irc_cfg.pyc
 *chatted_today*
+./core_functions.pyc
+core_functions.pyc
