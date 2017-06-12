@@ -49,6 +49,24 @@ def getpoints(username):
         conn_cursor.execute("SELECT points FROM chat_points WHERE username = ?", t)
         return conn_cursor.fetchone()[0]
     else:
-        givepoints(username, 0)
+        givepoints(username, 0) #create user
         return getpoints(username)
-print getpoints('steffersaurus')
+
+def cantakepoints(username, points):
+    #If points passed can be taken return 1
+    t = (username,)
+    if user_exists(username, 'chat_points'):
+        if getpoints(username) > points:
+            return 1
+        else:
+            return 0
+    else:
+        givepoints(username, 0) #create user
+        return 0
+
+def takepoints(username, points):
+    #purely take points, no checking
+    #use cantakepoints to check
+    t = (points,username)
+    conn_cursor.execute("UPDATE chat_points SET points = points - ? WHERE username = ?", t)
+    db_conn.commit()
