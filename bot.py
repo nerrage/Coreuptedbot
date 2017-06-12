@@ -52,7 +52,7 @@ def shorttimeout(sock, user, secs=120):
 def resetbonuspoints(sock, admin_name):
     #Activates after a designated user says !newstream
     #This empties the list of people who chatted
-    if core_functions.user_exists(admin_name, admins):
+    if core_functions.user_exists(admin_name, 'admins'):
         chat(sock, "Chat bonus has been reset for all! Enjoy your chatting Kappa")
         conn_cursor.execute("DELETE FROM chatted_today")
         db_conn.commit()
@@ -89,8 +89,8 @@ def commandlist(username,message):
         #twitch pings us to check connection
         s.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
         print("Pong sent") #logging
-    if re.match("!resetbonus", chatmessage[1]):
-        resetpoints(s, username)
+    if re.match("!newstream", chatmessage[1]):
+        resetbonuspoints(s, username)
     if re.match("!setbonus", message):
         #!coreuptedbot setpoints nerrage 2000
         try:

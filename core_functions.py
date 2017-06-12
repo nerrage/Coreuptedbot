@@ -86,7 +86,7 @@ def setchatbonus(username,bonus_points):
         conn_cursor.execute("UPDATE bonus_chat_points SET points = ? WHERE username = ?", t)
         db_conn.commit()
     else:
-        conn_cursor.execute("INSERT INTO bonus_chat_points(points, username) values (?, ?)", )
+        conn_cursor.execute("INSERT INTO bonus_chat_points(points, username) values (?, ?)", t)
         db_conn.commit()
 
 def getchatbonus(username):
