@@ -99,6 +99,7 @@ def commandlist(username,message):
                 setpoint_name = split_string[2]
                 setpoint_points = split_string[3]
                 core_functions.setchatbonus(setpoint_name, setpoint_points)
+                chat(s, "Chat bonus for {} set to {}".format(setpoint_name, setpoint_points))
             else:
                 chat(s, "You are not authorized to set bonus points")
         except:
