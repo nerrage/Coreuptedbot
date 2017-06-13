@@ -1,0 +1,11 @@
+# To get started with announcements, make a copy of this file as "announcements.txt"
+# If you do not make announcements.txt or it is empty, the bot will make no announcements
+# For each chat announcement, put the full announcement on its own line
+# Announcements will start from the top, continue to the bottom, then start at the top again
+# Timing for announcements can be set in irc_cfg.py. The default is once per 5 minutes
+# Lines starting with # will be ignored, like this one
+# Below are some starter announcements
+Thanks for checking out my stream. You earn 10 points per minute! Use !points to check your total.
+You get 1500 bonus points for your first chat message per stream!
+Check out my full list of rewards and commands with !rewards and !commands
+This bot is powered by Coreuptedbot, a free and open source bot. Check me out on GitHub: https://github.com/lucas-r-cooper/Coreuptedbot/

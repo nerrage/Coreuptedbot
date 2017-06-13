@@ -115,12 +115,14 @@ def commandlist(username,message):
         unpausebot(s,username)
 
 def announcements(sock):
+    #Make an announcement from announcements.txt
     global announcecount
     print("making announcement!")
-    announcelist = ["Follow coreupted @ https://facebook.com/Coreupted/ (gaming) https://facebook.com/actoralexblackwell/ (acting) https://twitter.com/_alexblackwell_ https://instagram.com/always_acting_alex https://www.youtube.com/channel/UCcy2uV-fhgUPfHGfdybHLrQ", "Check out my new coaching website at https://coreuptedgaming.com", "You get 1500 bonus points for your first message in chat each stream! Be sure to follow to never miss bonus points and also get 1500 more for following!", "Check me out on GamerSensei: https://www.gamersensei.com/senseis/coreupted Get $5 OFF your first session with Coupon code 'Coreupted'!"]
+    raw_announce_list = open("announcements.txt").readlines()
+    announcelist = [x for x in raw_announce_list if not x.startswith('#')]
     chat(sock, announcelist[announcecount])
     announcecount += 1
-    announcecount %= 4
+    announcecount %= len(announcelist) #Start from 0 if at end of list
 
 #main bot loop
 
