@@ -144,13 +144,26 @@ def commandlist(username,message):
         pausebot(s,username)
     if re.match("!coreuptedbot unpause", message):
         unpausebot(s,username)
-    if re.match("!gamble ", message):
+    if re.match("!gamble", message):
         try:
             split_string = message.split()
             gamble_points = int(split_string[1])
             gamble(s, username, gamble_points)
         except:
             chat(s, "!gamble <points to bet> Roll a 60 or above to double your points. Roll a 99 or 100 to triple them!")
+    if re.match("!bonus", message):
+        if core_functions.user_exists(username,'mods') or core_functions.user_exists(username,'admins'):
+            try:
+                split_string = message.split()
+                bonus_user = split_string[1]
+                bonus_points = int(split_string[2])
+                core_functions.givepoints(bonus_user, bonus_points)
+                chat(s, "{} points have been given to {} and they now have {}".format(bonus_points, bonus_user, core_functions.getpoints(bonus_user)))
+            except:
+                chat(s, "!bonus <username> <points>")
+        else:
+            chat(s, "Hey, you're not allowed to give a bonus! Stop cheating Kappa")
+            shorttimeout(s, user)
  
 
 def announcements(sock):
