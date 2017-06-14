@@ -91,26 +91,28 @@ def gamble(sock, user, points):
     #Timestamp is automatically appended
     if points < irc_cfg.MINIMUM_GAMBLE:
         chat(sock, "Must gamble at least {} points.".format(irc_cfg.MINIMUM_GAMBLE))
-    t = (irc_cfg.GAMBLE_RATE,)
-    conn_cursor.execute("DELETE FROM GAMBLERS where timestamp < DATETIME('now', '-? second');", t)
+    t2=(user,)
+    conn_cursor.execute("DELETE FROM GAMBLERS where timestamp < DATETIME('now', '-%s second')" % irc_cfg.GAMBLE_RATE)
     db_conn.commit()
-    if core_functions.user_exists(user, gamblers):
+    if core_functions.user_exists(user, 'gamblers'):
         chat(sock, "You can only gamble once every {} seconds, {}".format(irc_cfg.GAMBLE_RATE, user))
         return
-    if core_functions.cantakepoints(user, points) == 0:
+    if core_functions.cantakepoints(user, points) == False:
         chat(sock, "You don't have enough points to gamble that, {}".format(user))
         return
     core_functions.takepoints(user, points) #take their bet
+    conn_cursor.execute("INSERT INTO GAMBLERS(username) values(?)", t2)
+    db_conn.commit() #mark them as a gambler, timestamp is autmatically applied
     roll = randint(1,100)
     if roll < 60:
-        chat(sock, "Rolled {}. {} lost {} points and now has {} points".format(roll,user,points,core_functions.getpoints(user))
+        chat(sock, "Rolled {}. {} lost {} points and now has {} points".format(roll,user,points,core_functions.getpoints(user)))
         return
     elif roll < 99:
         core_functions.givepoints(user, 2*points)
-        chat(sock, "Rolled {}. {} won {} points and now has {} points".format(roll,user,points,core_functions.getpoints(user))
-    else #99 or 100
+        chat(sock, "Rolled {}. {} won {} points and now has {} points".format(roll,user,2*points,core_functions.getpoints(user)))
+    else: #99 or 100
         core_functions.givepoints(user, 3*points)
-        chat(sock, "Rolled {}. {} won {} points and now has {} points".format(roll,user,points,core_functions.getpoints(user))
+        chat(sock, "Rolled {}. {} won {} points and now has {} points".format(roll,user,3*points,core_functions.getpoints(user)))
 
 def commandlist(username,message):
 #todo: smaller functions
@@ -125,8 +127,8 @@ def commandlist(username,message):
         try:
             if core_functions.user_exists(admin_name, admins):
                 split_string = message.split()
-                setpoint_name = split_string[2]
-                setpoint_points = split_string[3]
+                setpoint_name = split_string[1]
+                setpoint_points = split_string[2]
                 core_functions.setchatbonus(setpoint_name, setpoint_points)
                 chat(s, "Chat bonus for {} set to {}".format(setpoint_name, setpoint_points))
             else:
@@ -145,9 +147,8 @@ def commandlist(username,message):
     if re.match("!gamble ", message):
         try:
             split_string = message.split()
-            setpoint_name = split_string[2]
-            setpoint_points = split_string[3]
-            gamble(s, setpoint_name, setpoint_points)
+            gamble_points = int(split_string[1])
+            gamble(s, username, gamble_points)
         except:
             chat(s, "!gamble <points to bet> Roll a 60 or above to double your points. Roll a 99 or 100 to triple them!")
  

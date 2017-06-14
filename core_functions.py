@@ -61,12 +61,11 @@ def getpoints(username):
 
 def cantakepoints(username, points):
     #If points passed can be taken return 1
-    t = (username,)
     if user_exists(username, 'chat_points'):
-        if getpoints(username) > points:
-            return 1
+        if getpoints(username) > int(points):
+            return True
         else:
-            return 0
+            return False
     else:
         givepoints(username, 0) #create user
         return 0
