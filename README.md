@@ -11,7 +11,7 @@ Coreuptedbot is a simple python program that works with SQLite to create a loyal
 
 ## Caution: You are hosting all point values on your computer. Make a backup of the database from time to time.
 
-This will be detailed when this actually has a database
+After you run db\_setup.py, you'll notice that there's a new file created called "bot.db". **This is your database of all point values, mods, etc**. You should make copies of this file and upload it to Google Drive, Dropbox, save to USB stick, etc. **If you lose your copy of bot.db and don't have a backup all of your points will be lost**.
 
 # Getting Started (WIP)
 
