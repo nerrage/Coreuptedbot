@@ -15,3 +15,5 @@ FIRST_CHAT_BONUS = 1 #Set to 0 to turn off
 FIRST_CHAT_BONUS_POINTS = 1500
 ANNOUNCEMENT_RATE = 300 #How often to make a scheduled announcement, in seconds
 #If you do not want announcements, don't make an announcements.txt file
+GAMBLE_RATE = 30 #How often a user can gamble, in seconds
+MINIMUM_GAMBLE = 500 #Amount of points that must be gambled minimally

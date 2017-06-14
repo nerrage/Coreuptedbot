@@ -7,6 +7,7 @@ import datetime
 import os
 import core_functions
 import sqlite3
+from random import randint
 
 # initial connection to irc
 
@@ -83,6 +84,34 @@ def unpausebot(sock, user):
         paused = False
         chat(sock, "Coreuptedbot is unpaused. Come and get your points MrDestructoid")
 
+def gamble(sock, user, points):
+    #Clears out eligible gamblers from table
+    #Checks if user is eligible to gamble
+    #If eligible, insert into table which makes them ineligible
+    #Timestamp is automatically appended
+    if points < irc_cfg.MINIMUM_GAMBLE:
+        chat(sock, "Must gamble at least {} points.".format(irc_cfg.MINIMUM_GAMBLE))
+    t = (irc_cfg.GAMBLE_RATE,)
+    conn_cursor.execute("DELETE FROM GAMBLERS where timestamp < DATETIME('now', '-? second');", t)
+    db_conn.commit()
+    if core_functions.user_exists(user, gamblers):
+        chat(sock, "You can only gamble once every {} seconds, {}".format(irc_cfg.GAMBLE_RATE, user))
+        return
+    if core_functions.cantakepoints(user, points) == 0:
+        chat(sock, "You don't have enough points to gamble that, {}".format(user))
+        return
+    core_functions.takepoints(user, points) #take their bet
+    roll = randint(1,100)
+    if roll < 60:
+        chat(sock, "Rolled {}. {} lost {} points and now has {} points".format(roll,user,points,core_functions.getpoints(user))
+        return
+    elif roll < 99:
+        core_functions.givepoints(user, 2*points)
+        chat(sock, "Rolled {}. {} won {} points and now has {} points".format(roll,user,points,core_functions.getpoints(user))
+    else #99 or 100
+        core_functions.givepoints(user, 3*points)
+        chat(sock, "Rolled {}. {} won {} points and now has {} points".format(roll,user,points,core_functions.getpoints(user))
+
 def commandlist(username,message):
 #todo: smaller functions
     if message == "PING :tmi.twitch.tv":
@@ -113,6 +142,15 @@ def commandlist(username,message):
         pausebot(s,username)
     if re.match("!coreuptedbot unpause", message):
         unpausebot(s,username)
+    if re.match("!gamble ", message):
+        try:
+            split_string = message.split()
+            setpoint_name = split_string[2]
+            setpoint_points = split_string[3]
+            gamble(s, setpoint_name, setpoint_points)
+        except:
+            chat(s, "!gamble <points to bet> Roll a 60 or above to double your points. Roll a 99 or 100 to triple them!")
+ 
 
 def announcements(sock):
     #Make an announcement from announcements.txt
@@ -137,7 +175,7 @@ while True:
     print(trimmed_responses) #logging
     #format [['username1', 'chat message1'], ['user2','chat2]...]
     for chatmessage in trimmed_responses:
-	username = chatmessage[0]
+      	username = chatmessage[0]
         message = chatmessage[1]
         commandlist(username, message)
     print("Timestamp: {}, announcetime {} ".format(float(time.time()), announcetime))
