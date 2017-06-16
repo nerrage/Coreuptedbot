@@ -175,6 +175,22 @@ def commandlist(username,message):
             return
         current_rank = core_functions.getrank(check_user)
         chat(s, "{} is currently rank {}".format(check_user,current_rank))
+    if re.match("!top5", message):
+        top5 = core_functions.gettoppoints(5)
+        chat_string = ""
+        for i in top5:
+            chat_string += "{} is rank {} with {} points, ".format(i[0], int(i[2]) + 1, i[1])
+        chat_string = chat_string[:-2]
+        chat_string += "!"
+        chat(s, chat_string)
+    if re.match("!top10", message):
+        top10 = core_functions.gettoppoints(10)
+        chat_string = ""
+        for i in top10:
+            chat_string += "{} is rank {} with {} points, ".format(i[0], int(i[2]) + 1, i[1])
+        chat_string = chat_string[:-2]
+        chat_string += "!"
+        chat(s, chat_string)
     if re.match("!gamble", message):
         try:
             split_string = message.split()

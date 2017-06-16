@@ -163,8 +163,12 @@ def getrank(username):
     if user_exists(irc_user, 'chat_points'):
         conn_cursor.execute("SELECT (SELECT COUNT(*) FROM chat_points as t2 WHERE t2.points > t1.points) AS PointRank FROM chat_points AS t1 WHERE t1.username = ?", t)
         result = conn_cursor.fetchone()
-        return result[0]
+        return int(result[0]) + 1
     else:
         givepoints(irc_user,0)
         getrank(irc_user)
 
+def gettoppoints(amount):
+    t = (amount,)
+    conn_cursor.execute("SELECT t1.*, (SELECT count(*) FROM chat_points AS t2 WHERE t2.points > t1.points) AS PointRank FROM chat_points AS t1 ORDER BY points DESC LIMIT ?", t)
+    return conn_cursor.fetchall() 
