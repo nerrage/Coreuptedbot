@@ -10,6 +10,7 @@ t = (owner,)
 
 #Create tables
 conn_cursor.execute("CREATE TABLE chat_points (username varchar(255) PRIMARY KEY, points int);")
+conn_cursor.execute("CREATE INDEX user_chatpoints on chat_points (points);")
 conn_cursor.execute("CREATE TABLE bonus_chat_points (username varchar(255) PRIMARY KEY, points int);")
 conn_cursor.execute("CREATE TABLE chatted_today (username varchar(255) PRIMARY KEY);")
 conn_cursor.execute("CREATE TABLE mods (username varchar(255) PRIMARY KEY);")
