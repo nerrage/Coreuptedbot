@@ -137,8 +137,11 @@ def hasfirstbonus(username):
         irc_user = username.lower() #Twitch IRC usernames are all lowercase
     except:
         print("{} could not be cast to lower".format(username))
-        return 2
-    return user_exists(irc_user, 'chatted_today')
+        return False
+    if user_exists(irc_user, 'chatted_today') == 0: #not on table
+        return True
+    else:
+        return False
 
 def givefirstbonus(username):
     #make damn sure hasfirstbonus is checked otherwise bad exceptions
@@ -150,8 +153,9 @@ def givefirstbonus(username):
     t = (irc_user,)
     bonus_points = getchatbonus(irc_user)
     givepoints(irc_user, bonus_points)
-    conn_cursor.execute("INSERT INTO chatted_today VALUES ?", t)
+    conn_cursor.execute("INSERT INTO chatted_today VALUES (?)", t)
     db_conn.commit()
+    return bonus_points
 
 def getrank(username):
     try:

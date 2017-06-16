@@ -63,6 +63,12 @@ def resetbonuspoints(sock, admin_name):
     else:
         chat(sock, "You are not authorized to reset the chat")
 
+def givechatbonus(sock, username):
+    #If it is the first time someone chats, give them points
+    if core_functions.hasfirstbonus(username):
+        bonus_given = core_functions.givefirstbonus(username)
+        chat(sock, "Welcome to my chat, {}! You get {} bonus points for your first message of the stream and now have {} points".format(username, bonus_given, core_functions.getpoints(username)))
+
 def processchat(chatlist):
     #This makes every message in the format of
     #[['username1','message1'], ['username2','message2']]
@@ -117,12 +123,17 @@ def gamble(sock, user, points):
         core_functions.givepoints(user, 3*points)
         chat(sock, "Rolled {}. {} won {} points and now has {} points".format(roll,user,3*points,core_functions.getpoints(user)))
 
-def commandlist(username,message):
-#todo: smaller functions
+def pong(username, message):
     if message == "PING :tmi.twitch.tv":
         #twitch pings us to check connection
         s.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
         print("Pong sent") #logging
+        return True
+    else:
+        return False
+ 
+def commandlist(username,message):
+#todo: smaller functions
     if re.match("!newstream", chatmessage[1]):
         resetbonuspoints(s, username)
     if re.match("!setbonus", message):
@@ -247,7 +258,11 @@ while True:
     for chatmessage in trimmed_responses:
       	username = chatmessage[0]
         message = chatmessage[1]
+        if pong(username, message):
+            continue
         commandlist(username, message)
+        if not paused:
+            givechatbonus(s, username)
     print("Timestamp: {}, announcetime {} ".format(float(time.time()), announcetime))
     if (announcetime <= float(time.time()) - irc_cfg.ANNOUNCEMENT_RATE and paused == False): #5 mins since last announcement
        announcements(s)
