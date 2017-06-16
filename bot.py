@@ -8,6 +8,7 @@ import os
 import core_functions
 import sqlite3
 from random import randint
+from multiprocessing import Process
 
 # initial connection to irc
 
@@ -16,7 +17,6 @@ s.connect((irc_cfg.HOST, irc_cfg.PORT))
 s.send("PASS {}\r\n".format(irc_cfg.PASS).encode("utf-8"))
 s.send("NICK {}\r\n".format(irc_cfg.NICK).encode("utf-8"))
 s.send("JOIN {}\r\n".format(irc_cfg.CHAN).encode("utf-8"))
-#s.send("PRIVMSG {} : coreuptedbot is online and giving points MrDestructoid\r\n".format(irc_cfg.CHAN))
 time.sleep(1)
 print(s.recv(1024).decode("utf-8")) #Print inital irc connection
 #Stops bot from giving points to itself or a non-existent tmi user
@@ -29,14 +29,6 @@ conn_cursor = db_conn.cursor()
 paused = False
 announcecount = 0
 last_chat_list = []
-
-#time variables for timestamps
-
-ts = time.time()
-st = datetime.datetime.fromtimestamp(ts).strftime('%Y%m%d_%H%M%S')
-announcetime = ts #static storage of timestamp
-pointtime = ts #static storage of timestamp
-
 
 #functions
 
@@ -74,7 +66,6 @@ def processchat(chatlist):
     #[['username1','message1'], ['username2','message2']]
     #icky regex ahead
     trimmedchat = []
-    chatcounter = 0
     for rawresponse in chatlist:
         name = re.search(r"\w+", rawresponse).group(0) 
         message = re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :").sub("", rawresponse)
@@ -134,7 +125,7 @@ def pong(username, message):
  
 def commandlist(username,message):
 #todo: smaller functions
-    if re.match("!newstream", chatmessage[1]):
+    if re.match("!newstream", message):
         resetbonuspoints(s, username)
     if re.match("!setbonus", message):
         #!coreuptedbot setpoints nerrage 2000
@@ -223,51 +214,59 @@ def commandlist(username,message):
             chat(s, "Hey, you're not allowed to give a bonus! Stop cheating Kappa")
             shorttimeout(s, user)
 
-def announcements(sock):
+#Main bot loops
+
+def make_announcements():
     #Make an announcement from announcements.txt
     global announcecount
-    print("making announcement!")
-    raw_announce_list = open("announcements.txt").readlines()
-    announcelist = [x for x in raw_announce_list if not x.startswith('#')]
-    chat(sock, announcelist[announcecount])
-    announcecount += 1
-    announcecount %= len(announcelist) #Start from 0 if at end of list
+    while True:
+        print("making announcement!")
+        raw_announce_list = open("announcements.txt").readlines()
+        announcelist = [x for x in raw_announce_list if not x.startswith('#')]
+        chat(s, announcelist[announcecount])
+        announcecount += 1
+        announcecount %= len(announcelist) #Start from 0 if at end of list
+        time.sleep(irc_cfg.ANNOUNCEMENT_RATE)
 
 def tickpoints():
     #Give people in chat points for staying a full tick
     #Default is once per minute
-    #Note: This logic means they must be there the tick before to get points
-    global last_chat_list
-    current_chat_list = core_functions.getchatlist()
-    for j in [i for i in current_chat_list if i in last_chat_list]:
-        core_functions.givepoints(j, irc_cfg.POINTS_PER_TICK)
-    last_chat_list = current_chat_list
+    #They must be there at the end of the tick before to get points
+    while True:
+        global last_chat_list
+        current_chat_list = core_functions.getchatlist()
+        for j in [i for i in current_chat_list if i in last_chat_list]:
+            core_functions.givepoints(j, irc_cfg.POINTS_PER_TICK)
+        last_chat_list = current_chat_list
+    time.sleep(irc_cfg.TICK_RATE)
 
-#main bot loop
-
-while True:
-    try:
-        response = s.recv(1024).decode("utf-8")
-        print(response) #logging
-    except:
-        continue
-    response_list = response.splitlines()
-    trimmed_responses = processchat(response_list)
-    print(trimmed_responses) #logging
-    #format [['username1', 'chat message1'], ['user2','chat2]...]
-    for chatmessage in trimmed_responses:
-      	username = chatmessage[0]
-        message = chatmessage[1]
-        if pong(username, message):
+def process_chat():
+    while True:
+        try:
+            response = s.recv(1024).decode("utf-8")
+            print(response) #logging
+        except:
             continue
-        commandlist(username, message)
-        if not paused:
-            givechatbonus(s, username)
-    print("Timestamp: {}, announcetime {} ".format(float(time.time()), announcetime))
-    if (announcetime <= float(time.time()) - irc_cfg.ANNOUNCEMENT_RATE and paused == False): #5 mins since last announcement
-       announcements(s)
-       announcetime = float(time.time()) 
-    if (pointtime <= float(time.time()) - irc_cfg.TICK_RATE and paused == False): 
-       tickpoints()
-       pointtime = float(time.time()) 
-    time.sleep(2)
+        response_list = response.splitlines()
+        trimmed_responses = processchat(response_list)
+        print(trimmed_responses) #logging
+        #format [['username1', 'chat message1'], ['user2','chat2]...]
+        for chatmessage in trimmed_responses:
+            username = chatmessage[0]
+            message = chatmessage[1]
+            if pong(username, message):
+                continue
+            commandlist(username, message)
+            if not paused:
+                givechatbonus(s, username)
+        time.sleep(2)
+
+#Run the three loops all together now!
+
+if __name__ == "__main__":
+    p1 = Process(target = tickpoints)
+    p1.start()
+    p2 = Process(target = make_announcements)
+    p2.start()
+    p3 = Process(target = process_chat)
+    p3.start()
