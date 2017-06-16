@@ -148,8 +148,19 @@ def commandlist(username,message):
     if re.match("!coreuptedbot unpause", message):
         unpausebot(s,username)
     if re.match("!points", message):
-        points_owned = core_functions.getpoints(username)
-        chat(s, "{} currently has {} points".format(username,points_owned))
+        try:
+            split_string = message.split()
+            check_user = split_string[1]
+            print check_user
+        except:
+            check_user = username
+        if core_functions.user_exists(check_user,'chat_points') == 0:
+            if check_user == username:
+                core_functions.givepoints(username, 0)
+            chat(s,"{} does not exist or hasn't been in this channel before".format(check_user))
+            return
+        points_owned = core_functions.getpoints(check_user)
+        chat(s, "{} currently has {} points".format(check_user,points_owned))
     if re.match("!gamble", message):
         try:
             split_string = message.split()
