@@ -8,6 +8,7 @@ import os
 import core_functions
 import sqlite3
 from random import randint
+from multiprocessing import Process
 
 # initial connection to irc
 
@@ -223,27 +224,38 @@ def commandlist(username,message):
             chat(s, "Hey, you're not allowed to give a bonus! Stop cheating Kappa")
             shorttimeout(s, user)
 
-def announcements(sock):
+def make_announcements():
     #Make an announcement from announcements.txt
     global announcecount
-    print("making announcement!")
-    raw_announce_list = open("announcements.txt").readlines()
-    announcelist = [x for x in raw_announce_list if not x.startswith('#')]
-    chat(sock, announcelist[announcecount])
-    announcecount += 1
-    announcecount %= len(announcelist) #Start from 0 if at end of list
+    while True:
+        print("making announcement!")
+        raw_announce_list = open("announcements.txt").readlines()
+        announcelist = [x for x in raw_announce_list if not x.startswith('#')]
+        chat(s, announcelist[announcecount])
+        announcecount += 1
+        announcecount %= len(announcelist) #Start from 0 if at end of list
+        time.sleep(irc_cfg.ANNOUNCEMENT_RATE)
 
 def tickpoints():
     #Give people in chat points for staying a full tick
     #Default is once per minute
     #Note: This logic means they must be there the tick before to get points
-    global last_chat_list
-    current_chat_list = core_functions.getchatlist()
-    for j in [i for i in current_chat_list if i in last_chat_list]:
-        core_functions.givepoints(j, irc_cfg.POINTS_PER_TICK)
-    last_chat_list = current_chat_list
+    #This runs as a separate process infinitely
+    while True:
+        global last_chat_list
+        current_chat_list = core_functions.getchatlist()
+        for j in [i for i in current_chat_list if i in last_chat_list]:
+            core_functions.givepoints(j, irc_cfg.POINTS_PER_TICK)
+        last_chat_list = current_chat_list
+    time.sleep(irc_cfg.TICK_RATE)
 
-#main bot loop
+
+#main bot loops
+
+p1 = Process(target = tickpoints)
+p1.start()
+p2 = Process(target = make_announcements)
+p2.start()
 
 while True:
     try:
@@ -263,11 +275,4 @@ while True:
         commandlist(username, message)
         if not paused:
             givechatbonus(s, username)
-    print("Timestamp: {}, announcetime {} ".format(float(time.time()), announcetime))
-    if (announcetime <= float(time.time()) - irc_cfg.ANNOUNCEMENT_RATE and paused == False): #5 mins since last announcement
-       announcements(s)
-       announcetime = float(time.time()) 
-    if (pointtime <= float(time.time()) - irc_cfg.TICK_RATE and paused == False): 
-       tickpoints()
-       pointtime = float(time.time()) 
     time.sleep(2)
