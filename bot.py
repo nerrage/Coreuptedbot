@@ -220,28 +220,29 @@ def make_announcements():
     #Make an announcement from announcements.txt
     global announcecount
     while True:
+        time.sleep(irc_cfg.ANNOUNCEMENT_RATE)
         print("making announcement!")
         raw_announce_list = open("announcements.txt").readlines()
         announcelist = [x for x in raw_announce_list if not x.startswith('#')]
         chat(s, announcelist[announcecount])
         announcecount += 1
         announcecount %= len(announcelist) #Start from 0 if at end of list
-        time.sleep(irc_cfg.ANNOUNCEMENT_RATE)
 
 def tickpoints():
     #Give people in chat points for staying a full tick
     #Default is once per minute
     #They must be there at the end of the tick before to get points
     while True:
+        time.sleep(irc_cfg.TICK_RATE)
         global last_chat_list
         current_chat_list = core_functions.getchatlist()
         for j in [i for i in current_chat_list if i in last_chat_list]:
             core_functions.givepoints(j, irc_cfg.POINTS_PER_TICK)
         last_chat_list = current_chat_list
-    time.sleep(irc_cfg.TICK_RATE)
 
 def process_chat():
     while True:
+        time.sleep(2)
         try:
             response = s.recv(1024).decode("utf-8")
             print(response) #logging
@@ -259,7 +260,6 @@ def process_chat():
             commandlist(username, message)
             if not paused:
                 givechatbonus(s, username)
-        time.sleep(2)
 
 #Run the three loops all together now!
 
