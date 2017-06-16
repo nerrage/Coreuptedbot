@@ -147,6 +147,9 @@ def commandlist(username,message):
         pausebot(s,username)
     if re.match("!coreuptedbot unpause", message):
         unpausebot(s,username)
+    if re.match("!points", message):
+        points_owned = core_functions.getpoints(username)
+        chat(s, "{} currently has {} points".format(username,points_owned))
     if re.match("!gamble", message):
         try:
             split_string = message.split()
