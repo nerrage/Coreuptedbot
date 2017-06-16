@@ -152,3 +152,19 @@ def givefirstbonus(username):
     givepoints(irc_user, bonus_points)
     conn_cursor.execute("INSERT INTO chatted_today VALUES ?", t)
     db_conn.commit()
+
+def getrank(username):
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    t = (irc_user,)
+    if user_exists(irc_user, 'chat_points'):
+        conn_cursor.execute("SELECT (SELECT COUNT(*) FROM chat_points as t2 WHERE t2.points > t1.points) AS PointRank FROM chat_points AS t1 WHERE t1.username = ?", t)
+        result = conn_cursor.fetchone()
+        return result[0]
+    else:
+        givepoints(irc_user,0)
+        getrank(irc_user)
+

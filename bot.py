@@ -161,6 +161,20 @@ def commandlist(username,message):
             return
         points_owned = core_functions.getpoints(check_user)
         chat(s, "{} currently has {} points".format(check_user,points_owned))
+    if re.match("!rank", message):
+        try:
+            split_string = message.split()
+            check_user = split_string[1]
+            print check_user
+        except:
+            check_user = username
+        if core_functions.user_exists(check_user,'chat_points') == 0:
+            if check_user == username:
+                core_functions.givepoints(username, 0)
+            chat(s,"{} does not exist or hasn't been in this channel before".format(check_user))
+            return
+        current_rank = core_functions.getrank(check_user)
+        chat(s, "{} is currently rank {}".format(check_user,current_rank))
     if re.match("!gamble", message):
         try:
             split_string = message.split()
@@ -181,7 +195,6 @@ def commandlist(username,message):
         else:
             chat(s, "Hey, you're not allowed to give a bonus! Stop cheating Kappa")
             shorttimeout(s, user)
- 
 
 def announcements(sock):
     #Make an announcement from announcements.txt
