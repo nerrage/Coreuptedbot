@@ -28,12 +28,15 @@ conn_cursor = db_conn.cursor()
 #global variables
 paused = False
 announcecount = 0
+last_chat_list = []
 
 #time variables for timestamps
 
 ts = time.time()
 st = datetime.datetime.fromtimestamp(ts).strftime('%Y%m%d_%H%M%S')
 announcetime = ts #static storage of timestamp
+pointtime = ts #static storage of timestamp
+
 
 #functions
 
@@ -176,6 +179,16 @@ def announcements(sock):
     announcecount += 1
     announcecount %= len(announcelist) #Start from 0 if at end of list
 
+def tickpoints():
+    #Give people in chat points for staying a full tick
+    #Default is once per minute
+    #Note: This logic means they must be there the tick before to get points
+    global last_chat_list
+    current_chat_list = core_functions.getchatlist()
+    for j in [i for i in current_chat_list if i in last_chat_list]:
+        core_functions.givepoints(j, irc_cfg.POINTS_PER_TICK)
+    last_chat_list = current_chat_list
+
 #main bot loop
 
 while True:
@@ -193,7 +206,10 @@ while True:
         message = chatmessage[1]
         commandlist(username, message)
     print("Timestamp: {}, announcetime {} ".format(float(time.time()), announcetime))
-    if (announcetime <= float(time.time()) - 300 and paused == False): #5 mins since last announcement
+    if (announcetime <= float(time.time()) - irc_cfg.ANNOUNCEMENT_RATE and paused == False): #5 mins since last announcement
        announcements(s)
        announcetime = float(time.time()) 
+    if (pointtime <= float(time.time()) - irc_cfg.TICK_RATE and paused == False): 
+       tickpoints()
+       pointtime = float(time.time()) 
     time.sleep(2)
