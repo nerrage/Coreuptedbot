@@ -30,7 +30,12 @@ def getchatlist():
 def user_exists(username, table):
     #Return 1 if user is on a table
     #Return 0 if user is not on table
-    t = (username,)
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    t = (irc_user,)
     conn_cursor.execute("SELECT COUNT(*) FROM "+table+" WHERE username = ?", t)
     result = conn_cursor.fetchone()
     return result[0]
@@ -39,8 +44,13 @@ def user_exists(username, table):
 def givepoints(username, gift_points):
     #Give points to a user, create record if not 
     #TODO add int validation
-    t = (gift_points,username)
-    if user_exists(username, 'chat_points'):
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    t = (gift_points,irc_user)
+    if user_exists(irc_user, 'chat_points'):
         conn_cursor.execute("UPDATE chat_points SET points = points + ? WHERE username = ?", t)
         db_conn.commit()
     else:
@@ -51,37 +61,57 @@ def givepoints(username, gift_points):
 def getpoints(username):
     #Fetches a user's points from the chat_points table
     #If they don't exist give 0 to create record
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
     t = (username,)
-    if user_exists(username, 'chat_points'):
+    if user_exists(irc_user, 'chat_points'):
         conn_cursor.execute("SELECT points FROM chat_points WHERE username = ?", t)
         return conn_cursor.fetchone()[0]
     else:
-        givepoints(username, 0) #create user
-        return getpoints(username)
+        givepoints(irc_user, 0) #create user
+        return getpoints(irc_user)
 
 def cantakepoints(username, points):
     #If points passed can be taken return 1
-    if user_exists(username, 'chat_points'):
-        if getpoints(username) > int(points):
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    if user_exists(irc_user, 'chat_points'):
+        if getpoints(irc_user) > int(points):
             return True
         else:
             return False
     else:
-        givepoints(username, 0) #create user
+        givepoints(irc_user, 0) #create user
         return 0
 
 def takepoints(username, points):
     #purely take points, no checking
     #use cantakepoints to check
-    t = (points,username)
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    t = (points,irc_user)
     conn_cursor.execute("UPDATE chat_points SET points = points - ? WHERE username = ?", t)
     db_conn.commit()
 
 def setchatbonus(username,bonus_points):
     #sets the bonus in the custom bonus table
     #for first time chatting
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
     t = (bonus_points, username)
-    if user_exists(username, 'bonus_chat_points'):
+    if user_exists(irc_user, 'bonus_chat_points'):
         conn_cursor.execute("UPDATE bonus_chat_points SET points = ? WHERE username = ?", t)
         db_conn.commit()
     else:
@@ -89,8 +119,13 @@ def setchatbonus(username,bonus_points):
         db_conn.commit()
 
 def getchatbonus(username):
-    t = (username,)
-    if user_exists(username, 'bonus_chat_points'):
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    t = (irc_user,)
+    if user_exists(irc_user, 'bonus_chat_points'):
         conn_cursor.execute("SELECT points FROM chat_points WHERE username = ?", t)
         return conn_cursor.fetchone()[0]
     else:
@@ -98,12 +133,22 @@ def getchatbonus(username):
 
 def hasfirstbonus(username):
     #Check if user has chatted once today
-    return user_exists(username, 'chatted_today')
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    return user_exists(irc_user, 'chatted_today')
 
 def givefirstbonus(username):
     #make damn sure hasfirstbonus is checked otherwise bad exceptions
-    t = (username,)
-    bonus_points = getchatbonus(username)
-    givepoints(username, bonus_points)
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    t = (irc_user,)
+    bonus_points = getchatbonus(irc_user)
+    givepoints(irc_user, bonus_points)
     conn_cursor.execute("INSERT INTO chatted_today VALUES ?", t)
     db_conn.commit()
