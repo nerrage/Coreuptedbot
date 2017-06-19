@@ -91,6 +91,7 @@ def gamble(sock, user, points):
     #Timestamp is automatically appended
     if points < irc_cfg.MINIMUM_GAMBLE:
         chat(sock, "Must gamble at least {} points.".format(irc_cfg.MINIMUM_GAMBLE))
+        return
     t2=(user,)
     conn_cursor.execute("DELETE FROM GAMBLERS where timestamp < DATETIME('now', '-%s second')" % irc_cfg.GAMBLE_RATE)
     db_conn.commit()
@@ -207,12 +208,15 @@ def commandlist(username,message):
                 bonus_user = split_string[1]
                 bonus_points = int(split_string[2])
                 core_functions.givepoints(bonus_user, bonus_points)
-                chat(s, "{} points have been given to {} and they now have {}".format(bonus_points, bonus_user, core_functions.getpoints(bonus_user)))
+                if bonus_points >= 0:
+                    chat(s, "{} points have been given to {} and they now have {}".format(bonus_points, bonus_user, core_functions.getpoints(bonus_user)))
+                else: #negative
+                    chat(s, "{} points have been taken from {} and they now have {}".format(-1*bonus_points, bonus_user, core_functions.getpoints(bonus_user)))
             except:
                 chat(s, "!bonus <username> <points>")
         else:
             chat(s, "Hey, you're not allowed to give a bonus! Stop cheating Kappa")
-            shorttimeout(s, user)
+            shorttimeout(s, username)
 
 #Main bot loops
 

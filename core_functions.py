@@ -82,7 +82,7 @@ def cantakepoints(username, points):
         print("{} could not be cast to lower".format(username))
         return 2
     if user_exists(irc_user, 'chat_points'):
-        if getpoints(irc_user) > int(points):
+        if getpoints(irc_user) >= int(points):
             return True
         else:
             return False
