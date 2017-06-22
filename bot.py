@@ -247,7 +247,7 @@ def tickpoints():
 def process_chat():
     while True:
         time.sleep(2)
-        try:
+        try: #weird characters break the loop
             response = s.recv(1024).decode("utf-8")
             print(response) #logging
         except:

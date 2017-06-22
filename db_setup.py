@@ -16,7 +16,7 @@ conn_cursor.execute("CREATE TABLE chatted_today (username varchar(255) PRIMARY K
 conn_cursor.execute("CREATE TABLE mods (username varchar(255) PRIMARY KEY);")
 conn_cursor.execute("CREATE TABLE admins (username varchar(255) PRIMARY KEY);")
 conn_cursor.execute("CREATE TABLE gamblers (username varchar(255) PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);")
-conn_cursor.execute("CREATE TABLE rewards (command varchar(255) PRIMARY KEY, reward_name varchar(255), chat_message varchar(255), cost int);")
+conn_cursor.execute("CREATE TABLE rewards (command varchar(255) PRIMARY KEY, reward_name varchar(255), chat_message varchar(255), cost int, protected varchar(1));")
 
 #Add first admin as streamer, irc channel name
 conn_cursor.execute("INSERT INTO admins values(?);", t)
