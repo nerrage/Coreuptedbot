@@ -73,13 +73,13 @@ def processchat(chatlist):
     return trimmedchat
 
 def pausebot(sock, user):
-    if core_functions.user_exists(admin_name, admins):
+    if core_functions.user_exists(user, 'admins'):
         global paused
         paused = True
         chat(sock, "Coreuptedbot is paused. Chat points paused. !coreuptedbot unpause to restart")
 
 def unpausebot(sock, user):
-    if core_functions.user_exists(admin_name, admins):
+    if core_functions.user_exists(user, 'admins'):
         global paused
         paused = False
         chat(sock, "Coreuptedbot is unpaused. Come and get your points MrDestructoid")
