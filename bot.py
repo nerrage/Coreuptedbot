@@ -222,8 +222,8 @@ def commandlist(username,message):
 
 def make_announcements():
     #Make an announcement from announcements.txt
-    global announcecount
     while True:
+        global announcecount
         time.sleep(irc_cfg.ANNOUNCEMENT_RATE)
         global paused
         if not paused:
