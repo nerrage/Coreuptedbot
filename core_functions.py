@@ -66,7 +66,7 @@ def getpoints(username):
     except:
         print("{} could not be cast to lower".format(username))
         return 2
-    t = (username,)
+    t = (irc_user,)
     if user_exists(irc_user, 'chat_points'):
         conn_cursor.execute("SELECT points FROM chat_points WHERE username = ?", t)
         return conn_cursor.fetchone()[0]
