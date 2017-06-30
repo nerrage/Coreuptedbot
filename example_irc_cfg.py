@@ -5,9 +5,9 @@
 #e.g Coreupted would use CHAN = "#coreupted"
 HOST = "irc.chat.twitch.tv"
 PORT = 6667
-NICK = "<YOUR BOT'S USERNAME>"
+NICK = "<YOUR BOT'S USERNAME>" #lowercase only
 PASS = "oauth:<YOUR BOT ACCOUNT'S API KEY>" #Don't have oauth:ouath: here
-CHAN = "#<YOUR CHANNEL>" #Lowercase only
+CHAN = "#<YOUR CHANNEL>" #Lowercase only, leave # in front
 POINT_NAME = "points" #Use a plural noun for announcements to make sense
 TICK_RATE = 60 #How often to give viewers points, in seconds
 POINTS_PER_TICK = 10
