@@ -17,3 +17,5 @@ ANNOUNCEMENT_RATE = 300 #How often to make a scheduled announcement, in seconds
 #If you do not want announcements, don't make an announcements.txt file
 GAMBLE_RATE = 30 #How often a user can gamble, in seconds
 MINIMUM_GAMBLE = 500 #Amount of points that must be gambled minimally
+REWARDS_URL = "<your site here>" #Link you want your bot to chat for rewards
+COMMANDS_URL = "<your site here>" #Link you want your bot to chat for commands

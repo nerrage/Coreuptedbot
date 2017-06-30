@@ -1,5 +1,6 @@
 import irc_cfg
 import sqlite3
+import core_functions
 
 db_conn = sqlite3.connect('bot.db')
 conn_cursor = db_conn.cursor()
@@ -27,3 +28,26 @@ def deletereward(command):
     t = (command,)
     conn_cursor.execute("DELETE FROM rewards WHERE command = ?", t)
     db_conn.commit()
+
+def redeemreward(user,command):
+    #Return False if can't redeem
+    #Return whisper if taken
+    #whisper executed on bot.py
+    t = (command,)
+    conn_cursor.execute("SELECT whisper_message, cost FROM rewards WHERE command = ?",t)
+    result = conn_cursor.fetchall()
+    whisper = result[0][0]
+    cost = result[1][0]
+    if core_functions.cantakepoints(user, cost):
+        takepoints(user,cost)
+        return whisper
+    else:
+        return False
+
+def getrewards():
+    #return list of commands
+    conn_cursor.execute("SELECT command FROM rewards")
+    data = conn_cursor.fetchall()
+    columns = [elt[0] for elt in data]
+    return columns
+
