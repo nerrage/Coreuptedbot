@@ -176,3 +176,48 @@ def gettoppoints(amount):
     t = (amount,)
     conn_cursor.execute("SELECT t1.*, (SELECT count(*) FROM chat_points AS t2 WHERE t2.points > t1.points) AS PointRank FROM chat_points AS t1 ORDER BY points DESC LIMIT ?", t)
     return conn_cursor.fetchall() 
+
+def addmod(username):
+    #only an admin should be able to do this, make sure you check!
+    #mods can only give out points
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    t =(irc_user,)
+    conn_cursor.execute("INSERT INTO mods values (?)",t)
+    db_conn.commit()
+
+def rmmod(username):
+    #ensure mod exists on table first
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    t =(irc_user,)
+    conn_cursor.execute("DELETE FROM mods WHERE username = ?",t)
+    db_conn.commit()
+    
+def addadmin(username):
+    #admins can do all special functions!
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    t =(irc_user,)
+    conn_cursor.execute("INSERT INTO admins values (?)",t)
+    db_conn.commit()
+
+def rmadmin(username):
+    #should only be executable by channel owner; check irc_cfg
+    try:
+        irc_user = username.lower() #Twitch IRC usernames are all lowercase
+    except:
+        print("{} could not be cast to lower".format(username))
+        return 2
+    t =(irc_user,)
+    conn_cursor.execute("DELETE FROM admins WHERE username = ?",t)
+    db_conn.commit()

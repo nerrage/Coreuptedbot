@@ -150,6 +150,67 @@ def commandlist(username,message):
         pausebot(s,username)
     if re.match("!coreuptedbot unpause", message):
         unpausebot(s,username)
+    if re.match("!addmod", message):
+        #mods do bonus points only
+        try:
+            split_string = message.split()
+            new_mod = split_string[1]
+        except:
+            chat(s, "!addmod <username>")
+        if core_functions.user_exists(username,'admins'):
+            if core_functions.user_exists(new_mod,'mods'):
+                chat(s,"{} is already a mod".format(new_mod))
+            else:
+                core_functions.addmod(new_mod)
+                chat(s,"{} added as a moderator!".format(new_mod))
+        else:
+            chat(s,"Only admins may add a mod")
+    if re.match("!removemod", message):
+        #mods do bonus points only
+        try:
+            split_string = message.split()
+            old_mod = split_string[1]
+        except:
+            chat(s, "!removemod <username>")
+        if core_functions.user_exists(username,'admins'):
+            if core_functions.user_exists(old_mod,'mods'):
+                core_functions.rmmod(old_mod)
+                chat(s,"{} removed from moderators".format(old_mod))
+            else:
+                chat(s,"{} is not a mod".format(old_mod))
+        else:
+            chat(s,"Only admins may remove a mod")
+    if re.match("!addadmin", message):
+        try:
+            split_string = message.split()
+            new_admin = split_string[1]
+        except:
+            chat(s, "!addadmin <username>")
+        if core_functions.user_exists(username,'admins'):
+            if core_functions.user_exists(new_admin,'admins'):
+                chat(s,"{} is already an admin".format(new_admin))
+            else:
+                core_functions.addadmin(new_admin)
+                chat(s,"{} added as an administrator!".format(new_admin))
+        else:
+            chat(s,"Only admins may add an admin")
+    if re.match("!removeadmin", message):
+        try:
+            split_string = message.split()
+            old_admin = split_string[1]
+            old_admin = old_admin.lower()
+        except:
+            chat(s, "!removeadmin <username>")
+        if username == irc_cfg.CHAN[1:]:
+            if old_admin == irc_cfg.CHAN[1:]: #channel owner
+                chat(s,"Channel owner cannot be removed from admins")
+            elif core_functions.user_exists(old_admin,'admins'):
+                core_functions.rmadmin(old_admin)
+                chat(s,"{} removed from admins".format(old_admin))
+            else:
+                chat(s,"{} is not an admin".format(old_admin))
+        else:
+            chat(s,"Only the channel owner may remove an admin")
     if re.match("!points", message):
         try:
             split_string = message.split()
