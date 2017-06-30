@@ -12,7 +12,7 @@ def createreward(command, reward_name, chat_message, cost):
     #These are not protected (they can be deleted by the user)
     cost = int(cost)
     t = (command, reward_name, chat_message, cost, 'N') #N for not protected
-    conn_cursor.execute("INSERT INTO rewards values(?,?,?,?,?);", t)
+    conn_cursor.execute("INSERT INTO rewards(command, reward_name, chat_message, cost, protected) values(?,?,?,?,?);", t)
     db_conn.commit()
 
 def candeletereward(command):

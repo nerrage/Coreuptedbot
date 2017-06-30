@@ -6,6 +6,7 @@ import re
 import datetime
 import os
 import core_functions
+import reward_functions
 import sqlite3
 from random import randint
 from multiprocessing import Process
@@ -123,6 +124,15 @@ def pong(username, message):
         return True
     else:
         return False
+
+def checkreward(first_chat_word):
+    #Checks and sees if a !command exists as a reward
+    #trim to only the first word
+    if first_chat_word in reward_functions.getrewards():
+        return True
+    else:
+        return False
+    
  
 def commandlist(username,message):
 #todo: smaller functions
