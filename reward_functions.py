@@ -29,20 +29,38 @@ def deletereward(command):
     conn_cursor.execute("DELETE FROM rewards WHERE command = ?", t)
     db_conn.commit()
 
-def redeemreward(user,command):
-    #Return False if can't redeem
-    #Return whisper if taken
-    #whisper executed on bot.py
+def canredeemreward(user, command):
+    t = (command,)
+    conn_cursor.execute("SELECT whisper_message, cost FROM rewards WHERE command = ?",t)
+    result = conn_cursor.fetchall()
+    print result
+    whisper = result[0][0]
+    cost = result[0][1]
+    if core_functions.cantakepoints(user, cost):
+        return True
+    else:
+        return False
+
+def redeemreward(user, command, message):
     t = (command,)
     conn_cursor.execute("SELECT whisper_message, cost FROM rewards WHERE command = ?",t)
     result = conn_cursor.fetchall()
     whisper = result[0][0]
-    cost = result[1][0]
-    if core_functions.cantakepoints(user, cost):
-        takepoints(user,cost)
-        return whisper
-    else:
-        return False
+    cost = result[0][1]
+    whisper = "/w " + irc_cfg.CHAN[1:] + " " + user + " " + whisper + message
+    core_functions.takepoints(user, cost)
+    t = (user, command, whisper, cost)
+    conn_cursor.execute("INSERT INTO reward_queue VALUES(?, ?, ?, ?)",t)
+    db_conn.commit()
+    t = (user,)
+    conn_cursor.execute("SELECT rowid FROM reward_queue WHERE username = ? ORDER BY rowid DESC LIMIT 1",t)
+    pointsnumber = conn_cursor.fetchone()
+    pointsnumber = pointsnumber[0]
+    whisper = whisper + " The reward code is " + str(pointsnumber)
+    return whisper 
+
+#def completeredemption():
+    #Deletes from the queue, signalling it's done
 
 def getrewards():
     #return list of commands

@@ -136,6 +136,11 @@ def checkreward(first_chat_word):
  
 def commandlist(username,message):
 #todo: smaller functions
+    if message.split(' ', 1)[0] in reward_functions.getrewards():
+    #first word matches a reward
+        if reward_functions.canredeemreward(username, message.split(' ', 1)[0]):
+            whisper_message = reward_functions.redeemreward(username, message.split(' ', 1)[0], message.split(' ', 1)[1])
+            chat(s, whisper_message)
     if re.match("!newstream", message):
         resetbonuspoints(s, username)
     if re.match("!setbonus", message):
