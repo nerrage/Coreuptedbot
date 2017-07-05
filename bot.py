@@ -145,8 +145,12 @@ def commandlist(username,message):
               chat(s, whisper_message)
             except:
                 chat(s, reward_functions.rewardinfo(first_word))
+        else:
+            chat(s, "You don't have enough points to redeem that!")
     if re.match("!newstream", message):
         resetbonuspoints(s, username)
+    if re.match("!rewards", message):
+        chat(s, "Coreuptedbot rewards list: {}".format(irc_cfg.REWARDS_URL))
     if re.match("!setbonus", message):
         #!setbonus nerrage 2000
         #Sets first time chat bonus
