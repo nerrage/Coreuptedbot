@@ -148,7 +148,8 @@ def commandlist(username,message):
     if re.match("!newstream", message):
         resetbonuspoints(s, username)
     if re.match("!setbonus", message):
-        #!coreuptedbot setpoints nerrage 2000
+        #!setbonus nerrage 2000
+        #Sets first time chat bonus
         try:
             if core_functions.user_exists(admin_name, admins):
                 split_string = message.split()
@@ -169,6 +170,9 @@ def commandlist(username,message):
         pausebot(s,username)
     if re.match("!coreuptedbot unpause", message):
         unpausebot(s,username)
+    if re.match("!rewardqueue", message):
+        for i in getrewardsqueue():
+            chat(s, i)
     if re.match("!addmod", message):
         #mods do bonus points only
         try:

@@ -64,7 +64,7 @@ def redeemreward(user, command, message):
     conn_cursor.execute("SELECT rowid FROM reward_queue WHERE username = ? ORDER BY rowid DESC LIMIT 1",t)
     pointsnumber = conn_cursor.fetchone()
     pointsnumber = pointsnumber[0]
-    whisper = whisper + " The reward code is " + str(pointsnumber)
+    whisper = whisper + " The reward code is " + str(pointsnumber) + ". Say !rewardcomplete " + str(pointsnumber) + " IN CHAT to finish redemption. Say !rewardrefund " + str(pointsnumber) + " IN CHAT to refund the points. !rewardsqueue will whisper you all unfinished rewards"
     return whisper 
 
 def completeredemption(rewardid):
@@ -92,6 +92,12 @@ def refundredemption(rewardid):
         core_functions.givepoints(refund[0][1],refund[0][0])
         conn_cursor.execute("DELETE FROM reward_queue where rowid = ?", t)
         return True
+
+def getrewardsqueue():
+    #return list of the queue
+    conn_cursor.execute("SELECT rowid, username, reward_name, message, cost FROM reward_queue")
+    data = conn_cursor.fetchall()
+    return data
 
 def getrewards():
     #return list of commands
