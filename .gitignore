@@ -36,6 +36,7 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+*.swp
 
 # Coreuptedbot Config + logs
 ./irc_cfg.py
@@ -45,5 +46,7 @@ irc_cfg.pyc
 *chatted_today*
 ./core_functions.pyc
 core_functions.pyc
+./reward_functions.pyc
+reward_functions.pyc
 ./announcements.txt
 announcements.txt
