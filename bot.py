@@ -289,7 +289,7 @@ def commandlist(username,message):
             gamble(s, username, gamble_points)
         except:
             chat(s, "!gamble <points to bet> Roll a 60 or above to double your points. Roll a 99 or 100 to triple them!")
-    if re.match("!bonus", message):
+    if re.match("!bonus ", message):
         if core_functions.user_exists(username,'mods') or core_functions.user_exists(username,'admins'):
             try:
                 split_string = message.split()
@@ -302,6 +302,23 @@ def commandlist(username,message):
                     chat(s, "{} points have been taken from {} and they now have {}".format(-1*bonus_points, bonus_user, core_functions.getpoints(bonus_user)))
             except:
                 chat(s, "!bonus <username> <points>")
+        else:
+            chat(s, "Hey, you're not allowed to give a bonus! Stop cheating Kappa")
+            shorttimeout(s, username)
+    if re.match("!bonusall", message):
+        if core_functions.user_exists(username,'mods') or core_functions.user_exists(username,'admins'):
+            try:
+                split_string = message.split()
+                bonus_to_all = int(split_string[1])
+                try:
+                    all_chatters = core_functions.getchatlist()
+                    for i in all_chatters:
+                        core_functions.givepoints(i, bonus_to_all)
+                    chat(s, "{} points have been given to everybody in chat!".format(bonus_to_all))
+                except:
+                    chat(s, "Unfortunately, the twitch API didn't return a list of all users in chat, so I cannot give everyone a bonus :( Please try this again later")
+            except:
+                chat(s, "!bonusall <points>")
         else:
             chat(s, "Hey, you're not allowed to give a bonus! Stop cheating Kappa")
             shorttimeout(s, username)
