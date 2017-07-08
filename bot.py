@@ -326,15 +326,22 @@ def tickpoints():
     #Give people in chat points for staying a full tick
     #Default is once per minute
     #They must be there at the end of the tick before to get points
+    #The twitch API doesn't return JSON as we like sometimes
+    tickpoints = irc_cfg.POINTS_PER_TICK
     while True:
         time.sleep(irc_cfg.TICK_RATE)
         global last_chat_list
         global paused
         if not paused:
-            current_chat_list = core_functions.getchatlist()
-            for j in [i for i in current_chat_list if i in last_chat_list]:
-                core_functions.givepoints(j, irc_cfg.POINTS_PER_TICK)
-            last_chat_list = current_chat_list
+            try:
+                current_chat_list = core_functions.getchatlist()
+                for j in [i for i in current_chat_list if i in last_chat_list]:
+                    core_functions.givepoints(j, tickpoints)
+                last_chat_list = current_chat_list
+                tickpoints = irc_cfg.POINTS_PER_TICK
+            except ValueError: #twitch API didn't return JSON
+                tickpoints += irc_cfg.POINTS_PER_TICK
+                #increase points to give next tick until error doesn't happen
 
 def process_chat():
     while True:
