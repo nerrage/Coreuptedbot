@@ -141,15 +141,17 @@ def commandlist(username,message):
     #first word matches a reward
         if reward_functions.canredeemreward(username, first_word):
             try:
-              whisper_message = reward_functions.redeemreward(username, first_word, message.split(' ', 1)[1])
-              chat(s, whisper_message)
+              chat_messages = reward_functions.redeemreward(username, first_word, message.split(' ', 1)[1])
+              chat(s, chat_messages[0])
+              time.sleep(.5)
+              chat(s, chat_messages[1])
             except:
                 chat(s, reward_functions.rewardinfo(first_word))
         else:
             chat(s, "You don't have enough points to redeem that!")
     if re.match("!newstream", message):
         resetbonuspoints(s, username)
-    if re.match("!rewards", message):
+    if message == "!rewards":
         chat(s, "Coreuptedbot rewards list: {}".format(irc_cfg.REWARDS_URL))
     if re.match("!setbonus", message):
         #!setbonus nerrage 2000
@@ -175,8 +177,43 @@ def commandlist(username,message):
     if re.match("!coreuptedbot unpause", message):
         unpausebot(s,username)
     if re.match("!rewardqueue", message):
-        for i in getrewardsqueue():
-            chat(s, i)
+        if username == irc_cfg.CHAN[1:]:
+            chat(s, "/w {} REWARD QUEUE STARTS HERE".format(irc_cfg.CHAN[1:]))
+            for i in reward_functions.getrewardsqueue():
+                whisper_message = i[3]
+                cost = i[4]
+                reward_id = i[0]
+                chat(s, "{} for {} points. The reward id is {}. Say !rewardcomplete {} in chat after the reward has been completed. Say !rewardrefund {} to refund the points for this reward.".format(whisper_message,cost,reward_id,reward_id,reward_id))
+                time.sleep(.5)
+            chat(s, "/w {} REWARD QUEUE ENDS HERE".format(irc_cfg.CHAN[1:]))
+        else:
+            chat(s, "Only the channel owner can use this function")
+    if re.match("!rewardcomplete", message):
+        if username == irc_cfg.CHAN[1:]:
+            try:
+                split_string = message.split()
+                reward_id = int(split_string[1])
+                if reward_functions.completeredemption(reward_id):
+                    chat(s, "/w {} reward id {} complete. Removing from queue".format(irc_cfg.CHAN[1:], reward_id))
+                else:
+                    chat(s, "/w reward id {} not found".format(irc_cfg.CHAN[1:], reward_id))
+            except:
+                chat(s, "!rewardcomplete <reward_id>")
+        else:
+            chat(s, "Only the channel owner can use this function")
+    if re.match("!rewardrefund", message):
+        if username == irc_cfg.CHAN[1:]:
+            try:
+                split_string = message.split()
+                reward_id = int(split_string[1])
+                if reward_functions.refundredemption(reward_id):
+                    chat(s, "/w {} reward id {} refunded. Removing from queue and returning points".format(irc_cfg.CHAN[1:], reward_id))
+                else:
+                    chat(s, "/w {} reward id {} not found".format(irc_cfg.CHAN[1:], reward_id))
+            except:
+                chat(s, "!rewardrefund <reward_id>")
+        else:
+            chat(s, "Only the channel owner can use this function")
     if re.match("!addmod", message):
         #mods do bonus points only
         try:

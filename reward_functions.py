@@ -51,10 +51,11 @@ def canredeemreward(user, command):
 
 def redeemreward(user, command, message):
     t = (command,)
-    conn_cursor.execute("SELECT whisper_message, cost FROM rewards WHERE command = ?",t)
+    conn_cursor.execute("SELECT whisper_message, cost, reward_name FROM rewards WHERE command = ?",t)
     result = conn_cursor.fetchall()
     whisper = result[0][0]
     cost = result[0][1]
+    reward_name = result[0][2]
     whisper = "/w " + irc_cfg.CHAN[1:] + " " + user + " " + whisper + " " + message
     core_functions.takepoints(user, cost)
     t = (user, command, whisper, cost)
@@ -64,14 +65,15 @@ def redeemreward(user, command, message):
     conn_cursor.execute("SELECT rowid FROM reward_queue WHERE username = ? ORDER BY rowid DESC LIMIT 1",t)
     pointsnumber = conn_cursor.fetchone()
     pointsnumber = pointsnumber[0]
-    whisper = whisper + " The reward code is " + str(pointsnumber) + ". Say !rewardcomplete " + str(pointsnumber) + " IN CHAT to finish redemption. Say !rewardrefund " + str(pointsnumber) + " IN CHAT to refund the points. !rewardsqueue will whisper you all unfinished rewards"
-    return whisper 
+    whisper = whisper + " The reward code is " + str(pointsnumber) + ". Say !rewardcomplete " + str(pointsnumber) + " IN CHAT to finish redemption. Say !rewardrefund " + str(pointsnumber) + " IN CHAT to refund the points. !rewardqueue will whisper you all unfinished rewards"
+    public_chat_message = user + " has claimed " + reward_name + " for " + str(cost) + " points!"
+    return (whisper, public_chat_message)
 
 def completeredemption(rewardid):
     #Deletes from the queue, signalling it's done
     #returns False if reward id doesn't exist
     t = (rewardid,)
-    conn_cursor.execute("SELECT COUNT(*) FROM reward_queue WHERE row_id = ?", t)
+    conn_cursor.execute("SELECT COUNT(*) FROM reward_queue WHERE rowid = ?", t)
     result = conn_cursor.fetchone()
     if result[0] == 0:
         return False
@@ -82,15 +84,16 @@ def completeredemption(rewardid):
 def refundredemption(rewardid):
     #same as completing, but gives the points back
     t = (rewardid,)
-    conn_cursor.execute("SELECT COUNT(*) FROM reward_queue WHERE row_id = ?", t)
+    conn_cursor.execute("SELECT COUNT(*) FROM reward_queue WHERE rowid = ?", t)
     result = conn_cursor.fetchone()
     if result[0] == 0:
         return False
     else:
         conn_cursor.execute("SELECT username, cost FROM reward_queue where rowid = ?", t)
         refund = conn_cursor.fetchall()
-        core_functions.givepoints(refund[0][1],refund[0][0])
+        core_functions.givepoints(refund[0][0],refund[0][1])
         conn_cursor.execute("DELETE FROM reward_queue where rowid = ?", t)
+        db_conn.commit()
         return True
 
 def getrewardsqueue():
