@@ -393,7 +393,7 @@ def tickpoints():
                     core_functions.givepoints(j, tickpoints)
                 last_chat_list = current_chat_list
                 tickpoints = irc_cfg.POINTS_PER_TICK
-            except ValueError: #twitch API didn't return JSON
+            except: #twitch API didn't return JSON
                 tickpoints += irc_cfg.POINTS_PER_TICK
                 #increase points to give next tick until error doesn't happen
 
