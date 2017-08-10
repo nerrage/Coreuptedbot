@@ -9,7 +9,7 @@ import core_functions
 import reward_functions
 import sqlite3
 from random import randint
-from multiprocessing import Process
+from threading import Thread
 
 # initial connection to irc
 
@@ -23,7 +23,7 @@ print(s.recv(1024).decode("utf-8")) #Print inital irc connection
 #Stops bot from giving points to itself or a non-existent tmi user
 
 #db setup
-db_conn = sqlite3.connect('bot.db')
+db_conn = sqlite3.connect('bot.db', check_same_thread = False)
 conn_cursor = db_conn.cursor()
 
 #global variables
@@ -77,7 +77,7 @@ def pausebot(sock, user):
     if core_functions.user_exists(user, 'admins'):
         global paused
         paused = True
-        chat(sock, "Coreuptedbot is paused. Chat points paused. !coreuptedbot unpause to restart")
+        chat(sock, "Coreuptedbot is paused. Chat points paused. !unpausebot to restart")
 
 def unpausebot(sock, user):
     if core_functions.user_exists(user, 'admins'):
@@ -172,9 +172,9 @@ def commandlist(username,message):
             chat(s, "Coreuptedbot is PAUSED MrDestructoid")
         else:
             chat(s, "Coreuptedbot is ONLINE MrDestructoid")
-    if re.match("!coreuptedbot pause", message):
+    if re.match("!pausebot", message):
         pausebot(s,username)
-    if re.match("!coreuptedbot unpause", message):
+    if re.match("!unpausebot", message):
         unpausebot(s,username)
     if re.match("!rewardqueue", message):
         if username == irc_cfg.CHAN[1:]:
@@ -421,9 +421,10 @@ def process_chat():
 #Run the three loops all together now!
 
 if __name__ == "__main__":
-    p1 = Process(target = tickpoints)
-    p1.start()
-    p2 = Process(target = make_announcements)
-    p2.start()
-    p3 = Process(target = process_chat)
-    p3.start()
+    t1 = Thread(target = tickpoints)
+    t2 = Thread(target = make_announcements)
+    t3 = Thread(target = process_chat)
+
+    t1.start()
+    t2.start()
+    t3.start()

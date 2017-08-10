@@ -3,7 +3,7 @@
 
 import sqlite3
 import irc_cfg
-db_conn = sqlite3.connect('bot.db')
+db_conn = sqlite3.connect('bot.db', check_same_thread = False)
 conn_cursor = db_conn.cursor()
 owner = irc_cfg.CHAN[1:]
 t = (owner,)
