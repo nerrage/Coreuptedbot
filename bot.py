@@ -414,6 +414,8 @@ def process_chat():
             message = chatmessage[1]
             if pong(username, message):
                 continue
+            if core_functions.containschatcommand(message): #using slash commands
+                continue #ignore
             commandlist(username, message)
             if not paused:
                 givechatbonus(s, username)

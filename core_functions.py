@@ -221,3 +221,11 @@ def rmadmin(username):
     t =(irc_user,)
     conn_cursor.execute("DELETE FROM admins WHERE username = ?",t)
     db_conn.commit()
+
+def containschatcommand(message): #used to prevent slash command injection
+    slash_commands = ['/mods', '/color', '/ignore', '/unignore', '/me', '/disconnect', '/timeout', '/ban', '/unban', '/slow', '/slowoff', '/followers', '/followersoff', '/subscribers', '/subscribersoff', '/clear', '/r9kbeta', '/r9kbetaoff', '/emoteonly', '/emoteonlyoff', '/commercial', '/host', '/unhost', '/mod', '/unmod']
+    words = message.split(' ')
+    for word in words:
+        if word in slash_commands:
+            return True
+    return False
