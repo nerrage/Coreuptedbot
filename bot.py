@@ -423,10 +423,21 @@ def process_chat():
 #Run the three loops all together now!
 
 if __name__ == "__main__":
+    #Put each worker as a seperate thread (to share the globals)
     t1 = Thread(target = tickpoints)
     t2 = Thread(target = make_announcements)
     t3 = Thread(target = process_chat)
 
+    #daemonize the threads so we can ^C
+    t1.daemon = True
+    t2.daemon = True
+    t3.daemon = True
+
+    #start yer engines
     t1.start()
     t2.start()
     t3.start()
+    
+    #Main thread continues until here so we sleep it forever (till ^C)
+    while True:
+        time.sleep(1)
