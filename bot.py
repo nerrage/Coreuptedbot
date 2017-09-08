@@ -159,7 +159,7 @@ def commandlist(username,message):
         #!setbonus nerrage 2000
         #Sets first time chat bonus
         try:
-            if core_functions.user_exists(admin_name, admins):
+            if core_functions.user_exists(username, 'admins'):
                 split_string = message.split()
                 setpoint_name = split_string[1]
                 setpoint_points = split_string[2]
