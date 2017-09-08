@@ -6,7 +6,7 @@
 HOST = "irc.chat.twitch.tv"
 PORT = 6667
 NICK = "<YOUR BOT'S USERNAME>" #lowercase only
-PASS = "oauth:<YOUR BOT ACCOUNT'S API KEY>" #Don't have oauth:ouath: here
+PASS = "oauth:<YOUR BOT ACCOUNT'S API KEY>" #Don't have oauth:oauth: here
 CHAN = "#<YOUR CHANNEL>" #Lowercase only, leave # in front
 POINT_NAME = "points" #Use a plural noun for announcements to make sense
 TICK_RATE = 60 #How often to give viewers points, in seconds

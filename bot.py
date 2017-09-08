@@ -153,6 +153,8 @@ def commandlist(username,message):
         resetbonuspoints(s, username)
     if message == "!rewards":
         chat(s, "Coreuptedbot rewards list: {}".format(irc_cfg.REWARDS_URL))
+    if message == "!commands":
+        chat(s, "Coreuptedbot command list: {}".format(irc_cfg.COMMANDS_URL))
     if re.match("!setbonus", message):
         #!setbonus nerrage 2000
         #Sets first time chat bonus
