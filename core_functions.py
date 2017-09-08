@@ -126,7 +126,7 @@ def getchatbonus(username):
         return 2
     t = (irc_user,)
     if user_exists(irc_user, 'bonus_chat_points'):
-        conn_cursor.execute("SELECT points FROM chat_points WHERE username = ?", t)
+        conn_cursor.execute("SELECT points FROM bonus_chat_points WHERE username = ?", t)
         return conn_cursor.fetchone()[0]
     else:
         return irc_cfg.FIRST_CHAT_BONUS_POINTS #default
