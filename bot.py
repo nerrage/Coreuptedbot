@@ -321,13 +321,16 @@ def commandlist(username,message):
         chat_string = chat_string[:-2]
         chat_string += "!"
         chat(s, chat_string)
-    if re.match("!gamble", message):
+    if re.match("!gamble", message) and message != "!gamble all" and message != "!gambleall":
         try:
             split_string = message.split()
             gamble_points = int(split_string[1])
             gamble(s, username, gamble_points)
         except:
             chat(s, "!gamble <points to bet> Roll a 60 or above to double your points. Roll a 99 or 100 to triple them!")
+    if message == "!gamble all" or message == "!gambleall":
+        gamble_points = core_functions.getpoints(username)
+        gamble(s, username, gamble_points)
     if re.match("!bonus ", message):
         if core_functions.user_exists(username,'mods') or core_functions.user_exists(username,'admins'):
             try:
