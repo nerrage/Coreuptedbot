@@ -1,3 +1,7 @@
+#irc_client.py
+#This is the main class for connecting and interacting with twitch irc
+#This also keeps us connected to IRC by responding to PINGs
+#You must call get_messages() regularly to stay connected
 import socket
 import time
 import re
