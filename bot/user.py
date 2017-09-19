@@ -94,10 +94,3 @@ class user:
             return True
         else:
             return False
-
-test = user('nerrage')
-points = test.getpoints()
-print points
-print test.give_first_chat_bonus()
-points = test.getpoints()
-print points
