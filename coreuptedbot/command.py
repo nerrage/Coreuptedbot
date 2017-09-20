@@ -31,11 +31,46 @@ class command:
         return method()
     
     #To add a new command for !foo, make a foo_function that does what you want
+    #These are in alphabetical order, please keep it that way :)
+    def addadmin_function(self):
+        function_user = user(self.user)
+        if function_user.isadmin() or function_user.isowner():
+            try:
+                newadmin = str(self.wordlist[0]).lower()
+            except:
+                return "!addadmin <user>"
+            if user(newmod).isadmin():
+                return "{} is already an admin".format(newadmin)
+            else:
+                t = (newadmin,)
+                self.conn_cursor.execute("INSERT INTO admins values (?)",t)
+                self.db_conn.commit()
+                return "{} added as an administrator!".format(newadmin)
+        else:
+            return "Only an admin or stream owner can use !addadmin"
+
+    def addmod_function(self):
+        function_user = user(self.user)
+        if function_user.isadmin() or function_user.isowner():
+            try:
+                newmod = str(self.wordlist[0]).lower()
+            except:
+                return "!addmod <user>"
+            if user(newmod).ismod():
+                return "{} is already a moderator".format(newmod)
+            else:
+                t = (newmod,)
+                self.conn_cursor.execute("INSERT INTO mods values (?)",t)
+                self.db_conn.commit()
+                return "{} added as a moderator!".format(newmod)
+        else:
+            return "Only an admin or stream owner can use !addmod"
+
     def bonus_function(self): #!bonus nerrage 1500
         function_user = user(self.user)
         if function_user.ismod() or function_user.isadmin() or function_user.isowner():
             try: #validate the inputs
-                bonus_target = str(self.wordlist[0])  
+                bonus_target = str(self.wordlist[0]).lower() 
                 bonus_to_give = int(self.wordlist[1])
             except:
                 return "!bonus <user> <{} to give>".format(POINT_NAME)
@@ -128,7 +163,7 @@ class command:
         if wordlist = []: #no args from user after !rank
            user_to_query = self.user 
         else:
-           user_to_query = wordlist[0]
+           user_to_query = wordlist[0].lower()
         querieduser = user(user_to_query)
         if querieduser.user_exists_in_table('chat_points'):
         self.conn_cursor.execute("SELECT (SELECT COUNT(*) FROM chat_points as t2 WHERE t2.points > t1.points) AS PointRank FROM chat_points AS t1 WHERE t1.username = ?", t)
@@ -137,6 +172,41 @@ class command:
         return "{} is currently rank {}".format(user_to_query, result)
         else:
             return "{} does not exist or hasn't been in this channel before".format(user_to_query)
+
+     def removeadmin_function(self):
+        function_user = user(self.user)
+        if function_user.isowner():
+            try:
+                oldadmin = str(self.wordlist[0]).lower()
+            except:
+                return "!removeadmin <user>"
+            if user(olmod).isadmin():
+                t = (oldmod,)
+                self.conn_cursor.execute("DELETE FROM admins where username = ?",t)
+                self.db_conn.commit()
+                return "{} removed from admins".format(oldmod)
+            else:
+                return "{} is not an admin".format(oldmod)
+        else:
+            return "Only the stream owner can use !removeadmin"
+
+   def removemod_function(self):
+        function_user = user(self.user)
+        if function_user.isadmin() or function_user.isowner():
+            try:
+                oldmod = str(self.wordlist[0]).lower()
+            except:
+                return "!removemod <user>"
+            if user(oldmod).ismod():
+                t = (oldmod,)
+                self.conn_cursor.execute("DELETE FROM mods where username = ?",t)
+                self.db_conn.commit()
+                return "{} removed from moderators".format(oldmod)
+            else:
+                return "{} is not a moderator".format(oldmod)
+        else:
+            return "Only an admin or stream owner can use !removemod"
+
 
     def rewards_function(self):
         return "Coreuptedbot rewards: " + str(REWARDS_URL)
