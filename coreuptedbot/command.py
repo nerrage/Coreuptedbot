@@ -59,18 +59,48 @@ class command:
         gambler.takepoints(gamble_amount) #take wager
         roll = randint(1,100)
         if roll < 60: #you lose
-            return "Rolled {}. {} lost {} points and now has {} points".format(roll, self.user, gamble_amount, gambler.getpoints())
+            return "Rolled {}. {} lost {} {} and now has {} points".format(roll, self.user, gamble_amount, POINT_NAME, gambler.getpoints())
         elif roll < 99:
             gambler.givepoints(2*gamble_amount)
-            return "Rolled {}. {} won {} points and now has {} points".format(roll, self.user, 2*gamble_amount, gambler.getpoints())
+            return "Rolled {}. {} won {} {} and now has {} points".format(roll, self.user, 2*gamble_amount, POINT_NAME, gambler.getpoints())
         else: #99 or 100
             gambler.givepoints(3*gamble_amount)
-            return "Rolled {}. {} won {} points and now has {} points".format(roll, self.user, 3*gamble_amount, gambler.getpoints())
+            return "Rolled {}. {} won {} {} and now has {} points".format(roll, self.user, 3*gamble_amount, POINT_NAME, gambler.getpoints())
         return "Something went wrong while gambling!" #should not get here
 
     def gambleall_function(self): #!gambleall
         self.wordlist = ['all']
         return self.gamble_function()
+
+    def pingbot_function(self): #!pingbot
+        return "Coreuptedbot is ONLINE MrDestructoid"
+
+    def points_function(self): #!points
+        if wordlist = []: #no args from user after !points
+           user_to_query = self.user 
+        else:
+           user_to_query = wordlist[0]
+        querieduser = user(user_to_query)
+        if querieduser.user_exists_in_table('chat_points'):
+            return "{} currently has {} {}".format(user_to_query, queried_user.getpoints(), POINT_NAME)
+        else:
+            return "{} does not exist or hasn't been in this channel before".format(user_to_query)
+
+    def rank_function(self): #!rank
+        if wordlist = []: #no args from user after !rank
+           user_to_query = self.user 
+        else:
+           user_to_query = wordlist[0]
+        querieduser = user(user_to_query)
+        if querieduser.user_exists_in_table('chat_points'):
+        self.conn_cursor.execute("SELECT (SELECT COUNT(*) FROM chat_points as t2 WHERE t2.points > t1.points) AS PointRank FROM chat_points AS t1 WHERE t1.username = ?", t)
+        query_result = conn_cursor.fetchone()
+        result = int(query_result[0] + 1)
+        return "{} is currently rank {}".format(user_to_query, result)
+        else:
+            return "{} does not exist or hasn't been in this channel before".format(user_to_query)
+
+    #TODO: add !rewards here
 
 
 test = command('!gamble', 'nerrage', '700')
