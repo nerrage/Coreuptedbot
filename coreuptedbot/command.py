@@ -29,7 +29,7 @@ class command:
 
     #To add a new command for !foo, make a foo_function that does what you want
     def commands_function(self):
-        return COMMANDS_URL
+        return "Coreuptedbot commands: " + str(COMMANDS_URL)
 
     def gamble_function(self):
         gamble_amount = self.wordlist[0] #!gamble 500
@@ -100,8 +100,28 @@ class command:
         else:
             return "{} does not exist or hasn't been in this channel before".format(user_to_query)
 
-    #TODO: add !rewards here
+    def rewards_function(self):
+        return "Coreuptedbot rewards: " + str(REWARDS_URL)
 
+    def top5_function(self): #!top5
+        self.conn_cursor.execute("SELECT t1.*, (SELECT count(*) FROM chat_points AS t2 WHERE t2.points > t1.points) AS PointRank FROM chat_points AS t1 ORDER BY points DESC LIMIT 5")
+        result_list = self.conn_cursor.fetchall()
+        response = ''
+        for result in result_list:
+            response += "{} is rank {} with {} {}, ".format(result[0], int(result[2]) + 1, result[1], POINT_NAME) 
+        response = response[:-2] #remove last ", "
+        response += "!"
+        return response
+
+    def top10_function(self): #!top10
+        self.conn_cursor.execute("SELECT t1.*, (SELECT count(*) FROM chat_points AS t2 WHERE t2.points > t1.points) AS PointRank FROM chat_points AS t1 ORDER BY points DESC LIMIT 10")
+        result_list = self.conn_cursor.fetchall()
+        response = ''
+        for result in result_list:
+            response += "{} is rank {} with {} {}, ".format(result[0], int(result[2]) + 1, result[1], POINT_NAME) 
+        response = response[:-2] #remove last ", "
+        response += "!"
+        return response
 
 test = command('!gamble', 'nerrage', '700')
 print test.execute_command()
