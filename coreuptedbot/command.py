@@ -7,6 +7,7 @@
 from user import *
 from irc_cfg import * 
 import sqlite3
+import requests
 from random import randint
 
 class command:
@@ -19,15 +20,52 @@ class command:
 
     db_conn = sqlite3.connect('bot.db')
     conn_cursor = db_conn.cursor()
-
+  
+    #This directs us to the correct function to execute
+    #input !foobar as self.command => go to and execute foobar_function
     def execute_command(self):
         #dispatch !commands to commands_function()
         method_name = self.command[1:] + "_function"
         method = getattr(self, method_name, False)
         #if false just ignore; invalid command
         return method()
-
+    
     #To add a new command for !foo, make a foo_function that does what you want
+    def bonus_function(self): #!bonus nerrage 1500
+        function_user = user(self.user)
+        if function_user.ismod() or function_user.isadmin() or function_user.isowner():
+            try: #validate the inputs
+                bonus_target = str(self.wordlist[0])  
+                bonus_to_give = int(self.wordlist[1])
+            except:
+                return "!bonus <user> <{} to give>".format(POINT_NAME)
+            recipient_user = user(bonus_target)
+            recipient_user.givepoints(bonus_to_give)
+            return "{} has been given {} {} and now has {} {}".format(bonus_target, bonus_to_give, POINT_NAME, recipient_user.getpoints(), 
+        else:
+            return "Only a moderator, administrator, or stream owner can user !bonus" 
+
+    def bonusall_function(self):
+        if function_user.ismod() or function_user.isadmin() or function_user.isowner():
+            try: #validate number
+                bonus_to_give = int(self.wordlist[0])
+            except:
+                return "!bonusall <{} to give to all>".format(POINT_NAME) 
+            #big thanks to bad_hombres on twitch for helping with this
+            r = requests.get('http://tmi.twitch.tv/group/user/%s/chatters' % owner)
+            bad_hombres = json.loads(r.text)
+            chat_list = bad_hombres["chatters"]["moderators"]
+            chat_list.extend(bad_hombres["chatters"]["staff"])
+            chat_list.extend(bad_hombres["chatters"]["admins"])
+            chat_list.extend(bad_hombres["chatters"]["global_mods"])
+            chat_list.extend(bad_hombres["chatters"]["viewers"])
+            for chatter in chat_list:
+                bonus_recipient = user(chatter)
+                bonus_recipient.givepoints(bonus_to_give)
+            return "{} {} have been given to everyone in chat!".format(bonus_to_give, POINT_NAME)
+        else:
+            return "Only a moderator, administrator, or stream owner can user !bonusall" 
+    
     def commands_function(self):
         return "Coreuptedbot commands: " + str(COMMANDS_URL)
 
