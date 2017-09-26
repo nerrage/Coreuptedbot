@@ -27,6 +27,7 @@ class command:
         #dispatch !commands to commands_function()
         method_name = self.command[1:] + "_function"
         method = getattr(self, method_name, False)
+        #if it doesn't exist, will return False
         #if false just ignore; invalid command
         return method()
     

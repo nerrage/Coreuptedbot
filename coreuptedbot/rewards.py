@@ -6,6 +6,7 @@
 #claims.py manages rewards claimed by users
 
 from irc_cfg import *
+from user import *
 import sqlite3
 
 class reward:
@@ -41,3 +42,15 @@ class reward:
         t = (self.reward, new_reward_name, new_chat_message, whisper, new_cost, rewardtype, protected)
         self.conn_cursor.execute("INSERT INTO rewards(command, reward_name, chat_message, whisper, cost, type protected) values(?,?,?,?,?,?,?);", t)
         self.db_conn.commit()
+
+    def claimreward(self, usermessage)
+        getrewarddetails()
+        claim_user = user(self.username)
+        claim_string = "{} claimed with a message of {}".format(self.reward_name, usermessage)
+        if claim_user.takepoints(self.cost):
+            t = (self.username, self.reward, claim_string, self.cost)
+            self.conn_cursor.execute("INSERT INTO rewards_queue(username, reward_name, message, cost) values(?,?,?,?);", t)
+            self.db_conn.commit()
+            return "{} claimed by {} for {} {}!".format(self.reward_name, self.username, self.cost, POINT_NAME)
+        else:
+            return "You don't have enough {} to claim {}, {} ({} required)".format(POINT_NAME, self.reward_name, self.username, self.cost)
