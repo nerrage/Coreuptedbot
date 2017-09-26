@@ -20,6 +20,12 @@ class command:
 
     db_conn = sqlite3.connect('bot.db')
     conn_cursor = db_conn.cursor()
+
+    def iscommand(self):
+        if self.command in ['!addadmin', '!addmod', '!bonus', '!bonusall', '!commands', '!gamble', '!gambleall', '!pingbot', '!points', '!rank', '!removeadmin', '!removemod', '!rewards', '!top5', '!top10']:
+            return True
+        else:
+            return False
   
     #This directs us to the correct function to execute
     #input !foobar as self.command => go to and execute foobar_function
@@ -77,7 +83,7 @@ class command:
                 return "!bonus <user> <{} to give>".format(POINT_NAME)
             recipient_user = user(bonus_target)
             recipient_user.givepoints(bonus_to_give)
-            return "{} has been given {} {} and now has {} {}".format(bonus_target, bonus_to_give, POINT_NAME, recipient_user.getpoints(), 
+            return "{} has been given {} {} and now has {} {}".format(bonus_target, bonus_to_give, POINT_NAME, recipient_user.getpoints(), POINT_NAME)
         else:
             return "Only a moderator, administrator, or stream owner can user !bonus" 
 
@@ -150,7 +156,7 @@ class command:
         return "Coreuptedbot is ONLINE MrDestructoid"
 
     def points_function(self): #!points
-        if wordlist = []: #no args from user after !points
+        if wordlist == []: #no args from user after !points
            user_to_query = self.user 
         else:
            user_to_query = wordlist[0]
@@ -161,20 +167,20 @@ class command:
             return "{} does not exist or hasn't been in this channel before".format(user_to_query)
 
     def rank_function(self): #!rank
-        if wordlist = []: #no args from user after !rank
+        if wordlist == []: #no args from user after !rank
            user_to_query = self.user 
         else:
            user_to_query = wordlist[0].lower()
         querieduser = user(user_to_query)
         if querieduser.user_exists_in_table('chat_points'):
-        self.conn_cursor.execute("SELECT (SELECT COUNT(*) FROM chat_points as t2 WHERE t2.points > t1.points) AS PointRank FROM chat_points AS t1 WHERE t1.username = ?", t)
-        query_result = conn_cursor.fetchone()
-        result = int(query_result[0] + 1)
-        return "{} is currently rank {}".format(user_to_query, result)
+            self.conn_cursor.execute("SELECT (SELECT COUNT(*) FROM chat_points as t2 WHERE t2.points > t1.points) AS PointRank FROM chat_points AS t1 WHERE t1.username = ?", t)
+            query_result = conn_cursor.fetchone()
+            result = int(query_result[0] + 1)
+            return "{} is currently rank {}".format(user_to_query, result)
         else:
             return "{} does not exist or hasn't been in this channel before".format(user_to_query)
 
-     def removeadmin_function(self):
+    def removeadmin_function(self):
         function_user = user(self.user)
         if function_user.isowner():
             try:
@@ -191,7 +197,7 @@ class command:
         else:
             return "Only the stream owner can use !removeadmin"
 
-   def removemod_function(self):
+    def removemod_function(self):
         function_user = user(self.user)
         if function_user.isadmin() or function_user.isowner():
             try:
@@ -231,6 +237,3 @@ class command:
         response = response[:-2] #remove last ", "
         response += "!"
         return response
-
-test = command('!gamble', 'nerrage', '700')
-print test.execute_command()

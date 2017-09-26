@@ -52,10 +52,8 @@ class irc_client:
         for message in message_list:
             username = message[0]
             chat = message[1]
-            print chat
             if chat == "PING :tmi.twitch.tv":
                 self.sock.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
             else:
                 filtered_messages.append([username,chat])
-        print filtered_messages
         return filtered_messages

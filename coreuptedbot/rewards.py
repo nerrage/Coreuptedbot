@@ -43,7 +43,7 @@ class reward:
         self.conn_cursor.execute("INSERT INTO rewards(command, reward_name, chat_message, whisper, cost, type protected) values(?,?,?,?,?,?,?);", t)
         self.db_conn.commit()
 
-    def claimreward(self, usermessage)
+    def claimreward(self, usermessage):
         getrewarddetails()
         claim_user = user(self.username)
         claim_string = "{} claimed with a message of {}".format(self.reward_name, usermessage)
