@@ -50,3 +50,4 @@ core_functions.pyc
 reward_functions.pyc
 ./announcements.txt
 announcements.txt
+*.pyc

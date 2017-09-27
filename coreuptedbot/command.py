@@ -8,6 +8,7 @@ from user import *
 from irc_cfg import * 
 import sqlite3
 import requests
+import json
 from random import randint
 
 class command:
@@ -16,13 +17,13 @@ class command:
         self.command = command
         self.user = user
         self.text = usertext
-        self.wordlist = usertext.split()
+        self.wordlist = usertext
 
     db_conn = sqlite3.connect('bot.db')
     conn_cursor = db_conn.cursor()
 
     def iscommand(self):
-        if self.command in ['!addadmin', '!addmod', '!bonus', '!bonusall', '!commands', '!gamble', '!gambleall', '!pingbot', '!points', '!rank', '!removeadmin', '!removemod', '!rewards', '!top5', '!top10']:
+        if self.command in ['!addadmin', '!addmod', '!bonus', '!bonusall', '!commands', '!gamble', '!gambleall', '!newstream', '!pingbot', '!points', '!rank', '!removeadmin', '!removemod', '!rewards', '!top5', '!top10']:
             return True
         else:
             return False
@@ -46,7 +47,7 @@ class command:
                 newadmin = str(self.wordlist[0]).lower()
             except:
                 return "!addadmin <user>"
-            if user(newmod).isadmin():
+            if user(newadmin).isadmin():
                 return "{} is already an admin".format(newadmin)
             else:
                 t = (newadmin,)
@@ -83,18 +84,22 @@ class command:
                 return "!bonus <user> <{} to give>".format(POINT_NAME)
             recipient_user = user(bonus_target)
             recipient_user.givepoints(bonus_to_give)
-            return "{} has been given {} {} and now has {} {}".format(bonus_target, bonus_to_give, POINT_NAME, recipient_user.getpoints(), POINT_NAME)
+            if bonus_to_give > 0:
+                return "{} has been given {} {} and now has {} {}".format(bonus_target, bonus_to_give, POINT_NAME, recipient_user.getpoints(), POINT_NAME)
+            else:
+                return "{} {} have been taken from {} and they now have {} {}".format(-bonus_to_give, POINT_NAME, bonus_target, recipient_user.getpoints(), POINT_NAME)
         else:
             return "Only a moderator, administrator, or stream owner can user !bonus" 
 
     def bonusall_function(self):
+        function_user = user(self.user)
         if function_user.ismod() or function_user.isadmin() or function_user.isowner():
             try: #validate number
                 bonus_to_give = int(self.wordlist[0])
             except:
                 return "!bonusall <{} to give to all>".format(POINT_NAME) 
             #big thanks to bad_hombres on twitch for helping with this
-            r = requests.get('http://tmi.twitch.tv/group/user/%s/chatters' % owner)
+            r = requests.get('http://tmi.twitch.tv/group/user/%s/chatters' % CHAN[1:])
             bad_hombres = json.loads(r.text)
             chat_list = bad_hombres["chatters"]["moderators"]
             chat_list.extend(bad_hombres["chatters"]["staff"])
@@ -112,16 +117,14 @@ class command:
         return "Coreuptedbot commands: " + str(COMMANDS_URL)
 
     def gamble_function(self):
-        gamble_amount = self.wordlist[0] #!gamble 500
         gambler = user(self.user)
-        print gambler.getpoints()
-        print gamble_amount
         try:
+            gamble_amount = self.wordlist[0] #!gamble 500
+            if gamble_amount == 'all':
+                gamble_amount = gambler.getpoints()
             gamble_amount = int(gamble_amount)
         except:
             return "!gamble <{} to bet or ALL> Roll a 60 or above to double your {}. Roll a 99 or 100 to triple them!".format(POINT_NAME,POINT_NAME)
-        if gamble_amount == 'all':
-            gamble_amount = gambler.getpoints()
         if gamble_amount < MINIMUM_GAMBLE:
             return "Must gamble at least {} {}".format(MINIMUM_GAMBLE,POINT_NAME)
         if gambler.getpoints() < gamble_amount:
@@ -152,29 +155,40 @@ class command:
         self.wordlist = ['all']
         return self.gamble_function()
 
+    def newstream_function(self):
+        function_user = user(self.user)
+        if function_user.isadmin() or function_user.isowner():
+            self.conn_cursor.execute("DELETE FROM chatted_today") 
+            self.db_conn.commit()
+            return "Chat bonus reset! Come and get your points Kappa"
+        else:
+            return "Only an admin or streamer can reset chat"
+        
+
     def pingbot_function(self): #!pingbot
         return "Coreuptedbot is ONLINE MrDestructoid"
 
     def points_function(self): #!points
-        if wordlist == []: #no args from user after !points
+        if self.wordlist == []: #no args from user after !points
            user_to_query = self.user 
         else:
-           user_to_query = wordlist[0]
+           user_to_query = self.wordlist[0]
         querieduser = user(user_to_query)
         if querieduser.user_exists_in_table('chat_points'):
-            return "{} currently has {} {}".format(user_to_query, queried_user.getpoints(), POINT_NAME)
+            return "{} currently has {} {}".format(user_to_query, querieduser.getpoints(), POINT_NAME)
         else:
             return "{} does not exist or hasn't been in this channel before".format(user_to_query)
 
     def rank_function(self): #!rank
-        if wordlist == []: #no args from user after !rank
+        if self.wordlist == []: #no args from user after !rank
            user_to_query = self.user 
         else:
-           user_to_query = wordlist[0].lower()
+           user_to_query = self.wordlist[0].lower()
         querieduser = user(user_to_query)
         if querieduser.user_exists_in_table('chat_points'):
+            t = (user_to_query,)
             self.conn_cursor.execute("SELECT (SELECT COUNT(*) FROM chat_points as t2 WHERE t2.points > t1.points) AS PointRank FROM chat_points AS t1 WHERE t1.username = ?", t)
-            query_result = conn_cursor.fetchone()
+            query_result = self.conn_cursor.fetchone()
             result = int(query_result[0] + 1)
             return "{} is currently rank {}".format(user_to_query, result)
         else:
@@ -187,13 +201,13 @@ class command:
                 oldadmin = str(self.wordlist[0]).lower()
             except:
                 return "!removeadmin <user>"
-            if user(olmod).isadmin():
-                t = (oldmod,)
+            if user(oldadmin).isadmin():
+                t = (oldadmin,)
                 self.conn_cursor.execute("DELETE FROM admins where username = ?",t)
                 self.db_conn.commit()
-                return "{} removed from admins".format(oldmod)
+                return "{} removed from admins".format(oldadmin)
             else:
-                return "{} is not an admin".format(oldmod)
+                return "{} is not an admin".format(oldadmin)
         else:
             return "Only the stream owner can use !removeadmin"
 

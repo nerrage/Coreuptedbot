@@ -24,7 +24,8 @@ class chat_worker:
                 chat_client.chat("Welcome to my chat, {}! You get {} bonus {} for your first message and you now have {}".format(username, FIRST_CHAT_BONUS_POINTS, POINT_NAME, chatter.getpoints()))
             firstword = chat.split()[0]
             if firstword[0] == "!": #start of something special
-                chat_list = chat.split().pop(0)
-                commander = command(firstword, username, chat_list)
+                params = chat.split()
+                params.pop(0)
+                commander = command(firstword, username, params)
                 if commander.iscommand():
                     chat_client.chat(commander.execute_command()) 
