@@ -8,9 +8,11 @@ import re
 from irc_cfg import *
 
 #irc_client will get us connected to twitch and also be used to send messages
+#self.name should be the same as the worker that creates it
 class irc_client:
 
-    def __init__(self, nick, passw, chan):
+    def __init__(self, name, nick, passw, chan):
+        self.name = name
         self.nick = nick
         self.passw = passw
         self.chan = chan
@@ -27,6 +29,7 @@ class irc_client:
 
     def disconnect(self):
         self.sock.send("QUIT :")
+        self.sock.close()
 
     def chat(self,msg):
         self.sock.send("PRIVMSG {} :{}\r\n".format(self.chan, msg)) 

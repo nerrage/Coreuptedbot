@@ -13,7 +13,7 @@ class chat_worker:
     def __init__(self, name):
     self.name = name    
 
-    chat_client = irc_client(self.name, NICK, PASS, CHAN) 
+    chat_client = irc_client(NICK, PASS, CHAN) 
     chat_client.connect()
 
     def process_chat(self):
