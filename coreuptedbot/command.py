@@ -13,11 +13,10 @@ from random import randint
 
 class command:
 
-    def __init__(self, command, user, usertext):
+    def __init__(self, command, user, params_list):
         self.command = command
         self.user = user
-        self.text = usertext
-        self.wordlist = usertext
+        self.wordlist = params_list
 
     db_conn = sqlite3.connect('bot.db')
     conn_cursor = db_conn.cursor()

@@ -11,17 +11,17 @@ import sqlite3
 
 class reward:
 
-    def __init__(self, username, reward): #reward should be in the form of !reward
-        self.username = username
+    def __init__(self, reward, username): #reward should be in the form of !reward
         self.reward = reward
+        self.username = username
 
     db_conn = sqlite3.connect('bot.db')
     conn_cursor = db_conn.cursor()
 
-    def reward_exists(self):
+    def isreward(self):
         t = (self.reward,)
         self.conn_cursor.execute("SELECT COUNT(*) FROM rewards WHERE command = ?", t)
-        if self.conn_cursor.fetchone() > 0:
+        if self.conn_cursor.fetchone()[0] > 0:
             return True
         return False
 
@@ -31,9 +31,9 @@ class reward:
         t = (self.reward,)
         self.conn_cursor.execute("SELECT reward_name, chat_message, cost FROM rewards where command = ?", t)
         result_list = self.conn_cursor.fetchall()
-        self.reward_name = result[0]
-        self.chat_message = result[1]
-        self.cost = int(result[2])
+        self.reward_name = result_list[0][0]
+        self.chat_message = result_list[0][1]
+        self.cost = int(result_list[0][2])
 
     def createreward(self, new_reward_name, new_chat_message, new_cost):
         whisper = "This is a deprecated area but kept to avoid db changes"
@@ -43,13 +43,15 @@ class reward:
         self.conn_cursor.execute("INSERT INTO rewards(command, reward_name, chat_message, whisper, cost, type protected) values(?,?,?,?,?,?,?);", t)
         self.db_conn.commit()
 
-    def claimreward(self, usermessage):
-        getrewarddetails()
+    def claimreward(self, param_list):
+        self.getrewarddetails()
         claim_user = user(self.username)
-        claim_string = "{} claimed with a message of {}".format(self.reward_name, usermessage)
+        if not param_list: #empty
+            return self.chat_message
+        claim_string = "{} claimed with a message of {}".format(self.reward_name, " ".join(param_list))
         if claim_user.takepoints(self.cost):
             t = (self.username, self.reward, claim_string, self.cost)
-            self.conn_cursor.execute("INSERT INTO rewards_queue(username, reward_name, message, cost) values(?,?,?,?);", t)
+            self.conn_cursor.execute("INSERT INTO reward_queue(username, reward_name, message, cost) values(?,?,?,?);", t)
             self.db_conn.commit()
             return "{} claimed by {} for {} {}!".format(self.reward_name, self.username, self.cost, POINT_NAME)
         else:

@@ -5,7 +5,7 @@ from irc_cfg import *
 from irc_client import *
 from user import *
 from command import *
-from rewards import *
+from reward import *
 import time
 
 class chat_worker:
@@ -29,3 +29,6 @@ class chat_worker:
                 commander = command(firstword, username, params)
                 if commander.iscommand():
                     chat_client.chat(commander.execute_command()) 
+                rewarder = reward(firstword, username)
+                if rewarder.isreward():
+                   chat_client.chat(rewarder.claimreward(params))
