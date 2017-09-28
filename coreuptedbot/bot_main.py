@@ -2,6 +2,7 @@
 from chat_worker import *
 from point_worker import *
 from announcement_worker import *
+from pause_watcher import *
 import time
 from threading import Thread
 
@@ -30,6 +31,14 @@ class bot_main:
             if self.paused == False:
                 time.sleep(TICK_RATE)
                 give_point_worker.givepassivepoints()
+
+    def watchforpause(self):
+        watch_pause_worker = pause_watcher(self.name)
+        while True:
+            time.sleep(2)
+            self.paused = watch_pause_worker.watchforpause(self.paused)
+            #This doesn't switch unless the bot is told to (un)pause
+            #otherwise it just returns its current state
     
     def runbot(self):
         t1 = Thread(target = self.processchat)
