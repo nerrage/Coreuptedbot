@@ -6,6 +6,7 @@
 #if return false, do nothing
 from user import *
 from irc_cfg import * 
+import bot_main
 import sqlite3
 import requests
 import json
@@ -17,12 +18,15 @@ class command:
         self.command = command
         self.user = user
         self.wordlist = params_list
+        self.main_bot = bot_main.bot_main('Coreupted')
+        #from bot_main import * doesn't work to make a clean bot_main()
+        #I have no clue why not
 
     db_conn = sqlite3.connect('bot.db')
     conn_cursor = db_conn.cursor()
 
     def iscommand(self):
-        if self.command in ['!addadmin', '!addmod', '!bonus', '!bonusall', '!commands', '!gamble', '!gambleall', '!newstream', '!pingbot', '!points', '!rank', '!removeadmin', '!removemod', '!rewards', '!top5', '!top10']:
+        if self.command in ['!addadmin', '!addmod', '!bonus', '!bonusall', '!commands', '!gamble', '!gambleall', '!newstream', '!pausebot', '!pingbot', '!points', '!rank', '!removeadmin', '!removemod', '!rewards', '!top5', '!top10', '!unpausebot']:
             return True
         else:
             return False
@@ -162,7 +166,12 @@ class command:
             return "Chat bonus reset! Come and get your points Kappa"
         else:
             return "Only an admin or streamer can reset chat"
-        
+
+    def pausebot_function(self):
+        #This is kind of a hack for now
+        #Maybe it will live for a while
+        self.main_bot.paused = True
+        return "Coreuptedbot is paused. Passive points and announcements paused"
 
     def pingbot_function(self): #!pingbot
         return "Coreuptedbot is ONLINE MrDestructoid"
@@ -250,3 +259,9 @@ class command:
         response = response[:-2] #remove last ", "
         response += "!"
         return response
+
+    def unpausebot_function(self):
+        #This is also kind of a hack for now
+        #Maybe it will live for a while
+        self.main_bot.paused = False
+        return "Coreuptedbot is unpaused. Come and get your points!"
