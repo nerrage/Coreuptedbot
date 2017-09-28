@@ -15,7 +15,7 @@ class reward:
         self.reward = reward
         self.username = username
 
-    db_conn = sqlite3.connect('bot.db')
+    db_conn = sqlite3.connect('bot.db', check_same_thread = False)
     conn_cursor = db_conn.cursor()
 
     def isreward(self):

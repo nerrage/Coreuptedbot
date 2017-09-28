@@ -7,7 +7,7 @@ class claims:
     def __init__(self, claim_id):
         self.claim_id = claim_id
 
-    db_conn = sqlite3.connect('bot.db')
+    db_conn = sqlite3.connect('bot.db', check_same_thread = False)
     conn_cursor = db_conn.cursor()
 
     def getclaimdetails(self):

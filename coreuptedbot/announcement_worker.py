@@ -9,7 +9,7 @@ class announcement_worker:
 
     def __init__(self, name):
         self.name = name
-        self.db_conn = sqlite3.connect('bot.db')
+        self.db_conn = sqlite3.connect('bot.db', check_same_thread = False)
         self.conn_cursor = self.db_conn.cursor()
         self.conn_cursor.execute("SELECT COUNT(*) FROM announcements;")
         self.num_announcements = self.conn_cursor.fetchone()[0]
@@ -18,7 +18,7 @@ class announcement_worker:
     def makeannouncement(self):
         chat_client = irc_client(self.name, NICK, PASS, CHAN)
         self.conn_cursor.execute("SELECT * FROM announcements")
-        next_announcement = self.conn_cursor.fetchall()[0][self.announce_count]
+        next_announcement = self.conn_cursor.fetchall()[self.announce_count][0]
         chat_client.connect()
         chat_client.chat(next_announcement)
         chat_client.disconnect()

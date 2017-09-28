@@ -8,7 +8,7 @@ class user:
     def __init__(self, username):
         self.username = username
     #get db connection
-    db_conn = sqlite3.connect('bot.db')
+    db_conn = sqlite3.connect('bot.db', check_same_thread = False)
     conn_cursor = db_conn.cursor()
     #twitch irc names are all lowercase
     #for some reason some users cant be .lower()'d

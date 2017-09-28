@@ -22,7 +22,7 @@ class command:
         #from bot_main import * doesn't work to make a clean bot_main()
         #I have no clue why not
 
-    db_conn = sqlite3.connect('bot.db')
+    db_conn = sqlite3.connect('bot.db', check_same_thread = False)
     conn_cursor = db_conn.cursor()
 
     def iscommand(self):
