@@ -21,15 +21,15 @@ class bot_main:
     def makeannouncements(self):
         make_announcement_worker = announcement_worker(self.name)
         while True:
+            time.sleep(ANNOUNCEMENT_RATE)
             if self.paused == False:
-                time.sleep(ANNOUNCEMENT_RATE)
                 make_announcement_worker.makeannouncement()
 
     def givepoints(self): #specifically passive points for being in chat
         give_point_worker = point_worker(self.name)
         while True:
+            time.sleep(TICK_RATE)
             if self.paused == False:
-                time.sleep(TICK_RATE)
                 give_point_worker.givepassivepoints()
 
     def watchforpause(self):
@@ -44,12 +44,15 @@ class bot_main:
         t1 = Thread(target = self.processchat)
         t2 = Thread(target = self.makeannouncements)
         t3 = Thread(target = self.givepoints)
+        t4 = Thread(target = self.watchforpause)
 
         t1.setDaemon(True)
         t2.setDaemon(True)
         t3.setDaemon(True)
+        t4.setDaemon(True)
 
         #start yer engines
         t1.start()
         t2.start()
         t3.start()
+        t4.start()
