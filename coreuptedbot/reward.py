@@ -6,6 +6,7 @@
 #claims.py manages rewards claimed by users
 
 from irc_cfg import *
+from irc_client import *
 from user import *
 import sqlite3
 
@@ -53,6 +54,11 @@ class reward:
             t = (self.username, self.reward, claim_string, self.cost)
             self.conn_cursor.execute("INSERT INTO reward_queue(username, reward_name, message, cost) values(?,?,?,?);", t)
             self.db_conn.commit()
+            #A hack for now... Till the new bot gets runnin
+            chatter = irc_client('newclient')
+            chatter.connect()
+            chatter.chat("/w {} {} has claimed {} with a message of {} for {} {}. Bonus them for now if they need a refund.".format(CHAN[1:], self.username, self.reward_name, claim_string, self.cost, POINT_NAME))
+            chatter.disconnect()
             return "{} claimed by {} for {} {}!".format(self.reward_name, self.username, self.cost, POINT_NAME)
         else:
             return "You don't have enough {} to claim {}, {} ({} required)".format(POINT_NAME, self.reward_name, self.username, self.cost)
