@@ -55,7 +55,7 @@ class reward:
             self.conn_cursor.execute("INSERT INTO reward_queue(username, reward_name, message, cost) values(?,?,?,?);", t)
             self.db_conn.commit()
             #A hack for now... Till the new bot gets runnin
-            chatter = irc_client('newclient')
+            chatter = irc_client('newclient', NICK, PASS, CHAN)
             chatter.connect()
             chatter.chat("/w {} {} has claimed {} with a message of {} for {} {}. Bonus them for now if they need a refund.".format(CHAN[1:], self.username, self.reward_name, claim_string, self.cost, POINT_NAME))
             chatter.disconnect()

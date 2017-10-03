@@ -26,12 +26,13 @@ class point_worker:
 
     def givepassivepoints(self):
         try: #Twitch API can fail and cause exceptions
-            chat_list = getchatters()
-            for j in [i for i in current_chat_list if i in self.last_list]:
+            chat_list = self.getchatters()
+            for j in [i for i in chat_list if i in self.last_list]:
             #This prevents abuse. You must be in chat a full tick to get points
                 recipient_user = user(j)
                 recipient_user.givepoints(self.tickpoints)
             self.tickpoints = POINTS_PER_TICK #reset points if were over base
+            self.last_list = chat_list #update list of people eligable to receive next tick
         except: #twitch API has failed, try again and increase points
             self.tickpoints += POINTS_PER_TICK
         
