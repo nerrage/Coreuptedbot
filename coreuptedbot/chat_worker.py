@@ -15,13 +15,13 @@ class chat_worker:
         self.chat_client = irc_client(name, NICK, PASS, CHAN) 
         self.chat_client.connect()
 
-    def processchat(self):
+    def processchat(self, paused):
         message_list = self.chat_client.get_messages()
         for message in message_list:
             username = message[0]
             chat = message[1]
             chatter = user(username)
-            if chatter.give_first_chat_bonus():
+            if chatter.give_first_chat_bonus() and not paused:
                 self.chat_client.chat("Welcome to my chat, {}! You get {} bonus {} for your first message and you now have {}".format(username, FIRST_CHAT_BONUS_POINTS, POINT_NAME, chatter.getpoints()))
             firstword = chat.split()[0]
             if firstword[0] == "!": #start of something special

@@ -19,7 +19,7 @@ class bot_main:
         while True:
             time.sleep(2)
             self.botlock.acquire()
-            process_chat_worker.processchat()
+            process_chat_worker.processchat(self.paused)
             self.botlock.release()
 
     def makeannouncements(self):
