@@ -49,7 +49,7 @@ class reward:
         claim_user = user(self.username)
         if not param_list: #empty
             return self.chat_message
-        claim_string = "{} claimed with a message of {}".format(self.reward_name, " ".join(param_list))
+        claim_string = " ".join(param_list)
         if claim_user.takepoints(self.cost):
             t = (self.username, self.reward, claim_string, self.cost)
             self.conn_cursor.execute("INSERT INTO reward_queue(username, reward_name, message, cost) values(?,?,?,?);", t)
