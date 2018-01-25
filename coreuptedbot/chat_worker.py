@@ -21,8 +21,8 @@ class chat_worker:
             username = message[0]
             chat = message[1]
             chatter = user(username)
-            #if chatter.give_first_chat_bonus() and not paused:
-                #self.chat_client.chat("Welcome to my chat, {}! You get {} bonus {} for your first message and you now have {}".format(username, FIRST_CHAT_BONUS_POINTS, POINT_NAME, chatter.getpoints()))
+            chatter.give_first_chat_bonus()
+                #self.chat_client.chat("Welcome to my chat, {}! You get {} bonus {} for your first message and you now have {}".format(username, FIRST_CHAT_BONUS_POINTS, POINT_NAME, chatter.getpoints())
             firstword = chat.split()[0]
             if firstword[0] == "!": #start of something special
                 params = chat.split()
